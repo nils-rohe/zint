@@ -1,0 +1,22 @@
+{
+  "name": "projects/zint-006bf471",
+  "displayName": "zint",
+  "buildScriptContent": "mkdir build\ncd build\ncmake .. # Here, you can place your CMake options such as -DDISABLE_TESTS\nmake -j$(nproc)",
+  "details": {
+    "buildSystem": "CMAKE"
+  },
+  "projectEnvironment": {
+    "dockerBuild": {
+      "name": "cifuzz/builders:zint",
+      "auth": {
+
+      }
+    },
+    "dockerRun": {
+      "name": "cifuzz/builders:zint",
+      "auth": {
+
+      }
+    }
+  }
+}
