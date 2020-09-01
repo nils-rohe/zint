@@ -697,6 +697,7 @@ INTERNAL void ean_leading_zeroes(struct zint_symbol *symbol, unsigned char sourc
 INTERNAL int eanx(struct zint_symbol *symbol, unsigned char source[], int src_len) {
     unsigned char first_part[20] = {0}, second_part[20] = {0}, dest[1000] = {0};
     unsigned char local_source[20] = {0};
+
 //  unsigned char local_source[27] = {0};
     /*
      * Exchange the two lines above to fix CVE-2020-9385,
