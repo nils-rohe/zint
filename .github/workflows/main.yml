@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - id: start-fuzzing
-        name: Build And Start Fuzzing
+        name: Build and Instrument
         uses: CodeIntelligenceTesting/github-actions/start-fuzzing@master
         with:
           cognito_user: ${{ secrets.COGNITO_USER }}
@@ -23,7 +23,7 @@ jobs:
           test_collection: "ean_fuzzer"
           git_reference: ${{ github.sha }}          
       - id: monitor-fuzzing
-        name: Monitor Fuzzing
+        name: Fuzzing
         uses: CodeIntelligenceTesting/github-actions/monitor-fuzzing@master
         with:
           cognito_user: ${{ secrets.COGNITO_USER }}
