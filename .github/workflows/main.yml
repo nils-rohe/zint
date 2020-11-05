@@ -21,6 +21,7 @@ jobs:
           project: ${{ env.PROJECT_NAME }}
           test_collection: "ean_fuzzer"
           git_reference: ${{ github.sha }}          
+          fuzzing_server_address: grpc-api.demo.code-intelligence.com:443
       - id: monitor-fuzzing
         name: Fuzzing
         uses: CodeIntelligenceTesting/github-actions/monitor-fuzzing@master
@@ -33,6 +34,8 @@ jobs:
           owner: ${{ github.event.repository.owner.login }}
           repository: ${{ github.event.repository.name }}
           timeout: 60
+          fuzzing_server_address: grpc-api.demo.code-intelligence.com:443
+          dashboard_address: https://app.demo.code-intelligence.com
       - id: report-coverage
         name: Report Coverage
         uses: CodeIntelligenceTesting/github-actions/report-coverage@master
@@ -46,4 +49,5 @@ jobs:
           owner: ${{ github.event.repository.owner.login }}
           repository: ${{ github.event.repository.name }}
           git_reference: ${{ github.sha }}
-          
+          fuzzing_server_address: grpc-api.demo.code-intelligence.com:443          
+          dashboard_address: https://app.demo.code-intelligence.com
