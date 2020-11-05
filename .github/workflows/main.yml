@@ -17,8 +17,7 @@ jobs:
         name: Build and Instrument
         uses: CodeIntelligenceTesting/github-actions/start-fuzzing@master
         with:
-          cognito_user: ${{ secrets.COGNITO_USER }}
-          cognito_password: ${{ secrets.COGNITO_PASSWORD }}
+          ci_fuzz_api_token: ${{ secrets.CI_FUZZ_API_TOKEN }}
           project: ${{ env.PROJECT_NAME }}
           test_collection: "ean_fuzzer"
           git_reference: ${{ github.sha }}          
@@ -26,8 +25,7 @@ jobs:
         name: Fuzzing
         uses: CodeIntelligenceTesting/github-actions/monitor-fuzzing@master
         with:
-          cognito_user: ${{ secrets.COGNITO_USER }}
-          cognito_password: ${{ secrets.COGNITO_PASSWORD }}
+          ci_fuzz_api_token: ${{ secrets.CI_FUZZ_API_TOKEN }}
           project: ${{ env.PROJECT_NAME }}
           test_collection_run: ${{ steps.start-fuzzing.outputs.test_collection_run }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -40,8 +38,7 @@ jobs:
         uses: CodeIntelligenceTesting/github-actions/report-coverage@master
         if: ${{ github.event_name == 'pull_request' && (success() || failure()) }}
         with:
-          cognito_user: ${{ secrets.COGNITO_USER }}
-          cognito_password: ${{ secrets.COGNITO_PASSWORD }}
+          ci_fuzz_api_token: ${{ secrets.CI_FUZZ_API_TOKEN }}
           project: ${{ env.PROJECT_NAME }}
           test_collection: "ean_fuzzer"
           github_token: ${{ secrets.GITHUB_TOKEN }}
