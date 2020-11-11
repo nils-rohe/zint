@@ -1,0 +1,18 @@
+{
+  "name": "fuzz_library_ZBarcode_Encode-cc195ddd",
+  "displayName": "auspost_fuzzer",
+  "buildFlags": [
+    "-Ibuild/backend",
+    "-Ibackend",
+    "-lpng",
+    "-lz",
+    "-lm",
+    "-lzint",
+    "-Lbuild/backend"
+  ],
+  "cApi": {
+    "api": {
+      "relativePath": ".code-intelligence/fuzz_targets/auspost_fuzzer.cpp"
+    }
+  }
+}

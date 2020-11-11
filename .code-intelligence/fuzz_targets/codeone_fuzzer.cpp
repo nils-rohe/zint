@@ -17,7 +17,7 @@ extern "C" int FUZZ(const unsigned char *Data, size_t Size)
 
   struct zint_symbol *my_symbol = ZBarcode_Create();
 
-  my_symbol->symbology = BARCODE_EANX;
+  my_symbol->symbology = BARCODE_CODEONE;
   ZBarcode_Encode(my_symbol, Data, Size);
   ZBarcode_Delete(my_symbol);
 

@@ -7,16 +7,11 @@
   },
   "projectEnvironment": {
     "dockerBuild": {
-      "name": "cifuzz/builders:zint",
-      "auth": {
-
-      }
+      "name": "cifuzz/builders:zint"
     },
     "dockerRun": {
-      "name": "cifuzz/builders:zint",
-      "auth": {
-
-      }
+      "name": "cifuzz/builders:zint"
     }
-  }
+  },
+  "testScriptContent": "mkdir build\ncd build\ncmake .. # Here, you can place your CMake options such as -DDISABLE_TESTS\nmake -j$(nproc)"
 }

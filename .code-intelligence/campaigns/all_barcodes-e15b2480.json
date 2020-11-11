@@ -1,0 +1,20 @@
+{
+  "name": "all_barcodes-e15b2480",
+  "displayName": "all_barcodes",
+  "maxRunTime": "600s",
+  "fuzzTargets": [
+    "fuzz_library_ZBarcode_Encode-de149784",
+    "ean_fuzzer-64014948",
+    "fuzz_library_ZBarcode_Encode-cc195ddd",
+    "fuzz_library_ZBarcode_Encode-9f7933d7",
+    "fuzz_library_ZBarcode_Encode-47fa07dd",
+    "fuzz_library_ZBarcode_Encode-566f58e5"
+  ],
+  "fuzzerRunConfigurations": [
+    {
+      "engine": "LIBFUZZER",
+      "sanitizer": "ADDRESS",
+      "numberOfJobs": 1
+    }
+  ]
+}
