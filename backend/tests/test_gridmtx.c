@@ -1,6 +1,6 @@
 /*
     libzint - the open source barcode library
-    Copyright (C) 2008-2019 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2008-2020 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -31,16 +31,64 @@
 
 #include "testcommon.h"
 
-//#define TEST_INPUT_GENERATE_EXPECTED 1
-//#define TEST_ENCODE_GENERATE_EXPECTED 1
+static void test_large(int index, int debug) {
 
-static void test_options(void)
-{
     testStart("");
 
     int ret;
     struct item {
-        unsigned char* data;
+        unsigned char *pattern;
+        int length;
+        int ret;
+        int expected_rows;
+        int expected_width;
+    };
+    // s/\/\*[ 0-9]*\*\//\=printf("\/*%3d*\/", line(".") - line("'<"))
+    struct item data[] = {
+        /*  0*/ { "1", 2751, 0, 162, 162 },
+        /*  1*/ { "1", 2752, ZINT_ERROR_TOO_LONG, -1, -1 },
+        /*  1*/ { "A", 1836, 0, 162, 162 },
+        /*  2*/ { "A", 1837, ZINT_ERROR_TOO_LONG, -1, -1 },
+        /*  3*/ { "\200", 1143, 0, 162, 162 },
+        /*  4*/ { "\200", 1144, ZINT_ERROR_TOO_LONG, -1, -1 },
+    };
+    int data_size = ARRAY_SIZE(data);
+
+    char data_buf[2753];
+
+    for (int i = 0; i < data_size; i++) {
+
+        if (index != -1 && i != index) continue;
+
+        struct zint_symbol *symbol = ZBarcode_Create();
+        assert_nonnull(symbol, "Symbol not created\n");
+
+        testUtilStrCpyRepeat(data_buf, data[i].pattern, data[i].length);
+        assert_equal(data[i].length, (int) strlen(data_buf), "i:%d length %d != strlen(data_buf) %d\n", i, data[i].length, (int) strlen(data_buf));
+
+        int length = testUtilSetSymbol(symbol, BARCODE_GRIDMATRIX, -1 /*input_mode*/, -1 /*eci*/, -1 /*option_1*/, -1, -1, -1 /*output_options*/, data_buf, data[i].length, debug);
+
+        ret = ZBarcode_Encode(symbol, data_buf, length);
+        assert_equal(ret, data[i].ret, "i:%d ZBarcode_Encode ret %d != %d (%s)\n", i, ret, data[i].ret, symbol->errtxt);
+
+        if (ret < 5) {
+            assert_equal(symbol->rows, data[i].expected_rows, "i:%d symbol->rows %d != %d\n", i, symbol->rows, data[i].expected_rows);
+            assert_equal(symbol->width, data[i].expected_width, "i:%d symbol->width %d != %d\n", i, symbol->width, data[i].expected_width);
+        }
+
+        ZBarcode_Delete(symbol);
+    }
+
+    testFinish();
+}
+
+static void test_options(int index, int debug) {
+
+    testStart("");
+
+    int ret;
+    struct item {
+        unsigned char *data;
         int option_1;
         int option_2;
         int ret_encode;
@@ -66,12 +114,16 @@ static void test_options(void)
 
     for (int i = 0; i < data_size; i++) {
 
-        struct zint_symbol* symbol = ZBarcode_Create();
+        if (index != -1 && i != index) continue;
+
+        struct zint_symbol *symbol = ZBarcode_Create();
         assert_nonnull(symbol, "Symbol not created\n");
 
         symbol->symbology = BARCODE_GRIDMATRIX;
         symbol->option_1 = data[i].option_1;
         symbol->option_2 = data[i].option_2;
+        symbol->debug |= debug;
+
         int length = strlen(data[i].data);
 
         ret = ZBarcode_Encode(symbol, data[i].data, length);
@@ -90,19 +142,20 @@ static void test_options(void)
     testFinish();
 }
 
-static void test_input(void)
-{
+static void test_input(int index, int generate, int debug) {
+
     testStart("");
 
     int ret;
     struct item {
         int input_mode;
         int eci;
-        unsigned char* data;
+        int option_3;
+        unsigned char *data;
         int ret;
         int expected_eci;
-        char* expected;
-        char* comment;
+        char *expected;
+        char *comment;
     };
     // é U+00E9 in ISO 8859-1 plus other ISO 8859 (but not in ISO 8859-7 or ISO 8859-11), Win 1250 plus other Win, in GB 2312 0xA8A6, UTF-8 C3A9
     // β U+03B2 in ISO 8859-7 Greek (but not other ISO 8859 or Win page), in GB 2312 0xA6C2, UTF-8 CEB2
@@ -110,54 +163,58 @@ static void test_input(void)
     // ㈩ U+3229 in GB 2312 0x226E
     // 一 U+4E00 in GB 2312 0x523B
     struct item data[] = {
-        /*  0*/ { UNICODE_MODE, 0, "é", 0, 0, "30 01 69 00", "B1 (ISO 8859-1)" },
-        /*  1*/ { UNICODE_MODE, 3, "é", 0, 3, "60 01 58 00 74 40", "ECI-3 B1 (ISO 8859-1)" },
-        /*  2*/ { UNICODE_MODE, 29, "é", 0, 29, "60 0E 44 2A 37 7C 00", "ECI-29 H1 (GB 2312)" },
-        /*  3*/ { UNICODE_MODE, 26, "é", 0, 26, "60 0D 05 28 4F 7C 00", "ECI-26 H1 (UTF-8)" },
-        /*  4*/ { DATA_MODE, 0, "é", 0, 0, "0A 51 1F 78 00", "H1 (UTF-8)" },
-        /*  5*/ { DATA_MODE, 0, "\351", 0, 0, "30 01 69 00", "B1 (ISO 8859-1) (0xE9)" },
-        /*  6*/ { UNICODE_MODE, 0, "β", 0, 0, "08 40 2F 78 00", "H1 (GB 2312)" },
-        /*  7*/ { UNICODE_MODE, 9, "β", 0, 9, "60 04 58 00 71 00", "ECI-9 B1 (ISO 8859-7)" },
-        /*  8*/ { UNICODE_MODE, 29, "β", 0, 29, "60 0E 44 20 17 7C 00", "ECI-29 H1 (GB 2312)" },
-        /*  9*/ { UNICODE_MODE, 26, "β", 0, 26, "60 0D 05 6B 17 7C 00", "ECI-26 H1 (UTF-8)" },
-        /* 10*/ { DATA_MODE, 0, "β", 0, 0, "0B 56 2F 78 00", "H1 (UTF-8)" },
-        /* 11*/ { UNICODE_MODE, 0, "ÿ", 0, 0, "30 01 7F 00", "B1 (ISO 8859-1)" },
-        /* 12*/ { UNICODE_MODE, 0, "ÿÿÿ", 0, 0, "30 05 7F 7F 7F 60", "B3 (ISO 8859-1)" },
-        /* 13*/ { UNICODE_MODE, 0, "㈩一", 0, 0, "08 15 68 0E 7F 70 00", "H2 (GB 2312)" },
-        /* 14*/ { UNICODE_MODE, 29, "㈩一", 0, 29, "60 0E 44 0A 74 07 3F 78 00", "ECI-29 H2 (GB 2312)" },
-        /* 15*/ { DATA_MODE, 0, "\177\177", 0, 0, "30 02 7F 3F 40", "B2 (ASCII)" },
-        /* 16*/ { DATA_MODE, 0, "\177\177\177", 0, 0, "30 04 7F 3F 5F 60", "B3 (ASCII)" },
-        /* 17*/ { UNICODE_MODE, 0, "123", 0, 0, "10 1E 7F 68", "N3 (ASCII)" },
-        /* 18*/ { UNICODE_MODE, 0, " 123", 0, 0, "11 7A 03 6F 7D 00", "N4 (ASCII)" },
-        /* 19*/ { UNICODE_MODE, 0, "1+23", 0, 0, "11 7B 03 6F 7D 00", "N4 (ASCII)" },
-        /* 20*/ { UNICODE_MODE, 0, "12.3", 0, 0, "11 7C 63 6F 7D 00", "N4 (ASCII)" },
-        /* 21*/ { UNICODE_MODE, 0, "123,", 0, 0, "10 1E 7F 73 76 5E 60", "N3 L1 (ASCII)" },
-        /* 22*/ { UNICODE_MODE, 0, "123,4", 0, 0, "14 1E 7F 51 48 3F 50", "N5 (ASCII)" },
-        /* 23*/ { UNICODE_MODE, 0, "\015\012123", 0, 0, "11 7D 63 6F 7D 00", "N4 (ASCII) (EOL)" },
-        /* 24*/ { UNICODE_MODE, 0, "1\015\01223", 0, 0, "11 7E 03 6F 7D 00", "N4 (ASCII) (EOL)" },
-        /* 25*/ { UNICODE_MODE, 0, "12\015\0123", 0, 0, "11 7E 23 6F 7D 00", "N4 (ASCII) (EOL)" },
-        /* 26*/ { UNICODE_MODE, 0, "123\015\012", 0, 0, "10 1E 7F 7C 01 06 42 40", "N3 B2 (ASCII) (EOL)" },
-        /* 27*/ { UNICODE_MODE, 0, "123\015\0124", 0, 0, "14 1E 7F 5D 48 3F 50", "N5 (ASCII) (EOL)" },
-        /* 28*/ { UNICODE_MODE, 0, "2.2.0", 0, 0, "15 7C 46 73 78 40 07 7A", "N5 (ASCII)" },
-        /* 29*/ { UNICODE_MODE, 0, "2.2.0.5", 0, 0, "30 0C 32 17 0C 45 63 01 38 6A 00", "B7 (ASCII)" },
-        /* 30*/ { UNICODE_MODE, 0, "2.2.0.56", 0, 0, "13 7C 46 73 78 40 07 71 46 0F 74", "N8 (ASCII)" },
-        /* 31*/ { UNICODE_MODE, 0, "1 1234ABCD12.2abcd-12", 0, 0, "13 7A 23 41 2A 3F 68 01 08 3E 4F 66 1E 5F 70 00 44 1F 2F 6E 0F 0F 74", "N6 U4 N4 L4 N3 (ASCII)" },
-        /* 32*/ { UNICODE_MODE, 0, "1 123ABCDE12.2abcd-12", 0, 0, "28 1F 40 42 06 28 59 43 27 01 05 7D 56 42 49 16 34 7F 6D 30 08 2F 60", "M21 (ASCII)" },
-        /* 33*/ { UNICODE_MODE, 0, "国外通信教材 Matlab6.5", 0, 0, "09 63 27 20 4E 24 1F 05 21 58 22 13 7E 1E 4C 78 09 56 00 3D 3F 4A 45 3F 50", "H6 U2 L5 N3 (GB 2312) (Same as D.2 example)" },
-        /* 34*/ { UNICODE_MODE, 0, "AAT", 0, 0, "20 00 4F 30", "U3 (ASCII)" },
-        /* 35*/ { UNICODE_MODE, 0, "aat", 0, 0, "18 00 4F 30", "L3 (ASCII)" },
-        /* 36*/ { UNICODE_MODE, 0, "AAT2556", 0, 0, "20 00 4F 58 7F 65 47 7A", "U3 N4 (ASCII) (note same bit count as M7)" },
-        /* 37*/ { UNICODE_MODE, 0, "AAT2556 ", 0, 0, "29 22 4E 42 0A 14 37 6F 60", "M8 (ASCII)" },
-        /* 38*/ { UNICODE_MODE, 0, "AAT2556 电", 0, 0, "29 22 4E 42 0A 14 37 6F 62 2C 1F 7E 00", "M8 H1 (GB 2312)" },
-        /* 39*/ { UNICODE_MODE, 0, " 200", 0, 0, "11 7A 06 23 7D 00", "N4 (ASCII)" },
-        /* 40*/ { UNICODE_MODE, 0, " 200mA至", 0, 0, "2F 60 40 00 60 2B 78 63 41 7F 40", "M6 H1 (GB 2312)" },
-        /* 41*/ { UNICODE_MODE, 0, "2A tel:86 019 82512738", 0, 0, "28 22 5F 4F 29 48 5F 6D 7E 6F 55 57 1F 28 63 0F 5A 11 64 0F 74", "M2 L5(with control) N15 (ASCII)" },
-        /* 42*/ { UNICODE_MODE, 0, "至2A tel:86 019 82512738", 0, 0, "30 07 56 60 4C 48 13 6A 32 17 7B 3F 5B 75 35 67 6A 18 63 76 44 39 03 7D 00", "B4 L5(with control) N15 (GB 2312)" },
-        /* 43*/ { UNICODE_MODE, 0, "AAT2556 电池充电器＋降压转换器 200mA至2A tel:86 019 82512738", 0, 0, "(62) 29 22 22 1C 4E 41 42 7E 0A 40 14 00 37 7E 6F 00 62 7E 2C 00 1C 7E 4B 00 41 7E 18 00", "M8 H11 M6 B4 L5(with control) N15 (GB 2312) (*NOT SAME* as D3 example, M8 H11 M6 H1 M3 L4(with control) N15, which uses a few more bits)" },
-        /* 44*/ { UNICODE_MODE, 0, "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::", 0, 0, "(588) 37 68 68 68 68 68 74 7E 74 74 74 74 74 3A 3A 3A 3A 3A 3A 3A 1D 1D 1D 1D 1D 1D 1D 0E", "B512 (ASCII)" },
-        /* 45*/ { UNICODE_MODE, 0, "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\177", 0, 0, "(591) 37 68 68 68 68 68 74 7E 74 74 74 74 74 3A 3A 3A 3A 3A 3A 3A 1D 1D 1D 1D 1D 1D 1D 0E", "B513 (ASCII)" },
-        /* 46*/ { UNICODE_MODE, 0, ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::至", 0, 0, "(591) 37 68 68 68 68 68 74 7C 74 74 74 74 74 3A 3A 3A 3A 3A 3A 3A 1D 1D 1D 1D 1D 1D 1D 0E", "B511 H1 (GB 2312)" },
-        /* 47*/ { UNICODE_MODE, 0, ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::至:", 0, 0, "(592) 37 68 68 68 68 68 74 7E 74 74 74 74 74 3A 3A 3A 3A 3A 3A 3A 1D 1D 1D 1D 1D 1D 1D 0E", "B513 (GB 2312)" },
+        /*  0*/ { UNICODE_MODE, 0, -1, "é", 0, 0, "30 01 69 00", "B1 (ISO 8859-1)" },
+        /*  1*/ { UNICODE_MODE, 3, -1, "é", 0, 3, "60 01 58 00 74 40", "ECI-3 B1 (ISO 8859-1)" },
+        /*  2*/ { UNICODE_MODE, 29, -1, "é", 0, 29, "60 0E 44 2A 37 7C 00", "ECI-29 H1 (GB 2312)" },
+        /*  3*/ { UNICODE_MODE, 26, -1, "é", 0, 26, "60 0D 18 01 61 6A 20", "ECI-26 B2 (UTF-8)" },
+        /*  4*/ { UNICODE_MODE, 26, 200, "é", 0, 26, "60 0D 05 28 4F 7C 00", "ECI-26 H1 (UTF-8) (full multibyte)" },
+        /*  5*/ { DATA_MODE, 0, -1, "é", 0, 0, "30 03 43 54 40", "B2 (UTF-8)" },
+        /*  6*/ { DATA_MODE, 0, 200, "é", 0, 0, "0A 51 1F 78 00", "H1 (UTF-8) (full multibyte)" },
+        /*  7*/ { DATA_MODE, 0, -1, "\351", 0, 0, "30 01 69 00", "B1 (ISO 8859-1) (0xE9)" },
+        /*  8*/ { UNICODE_MODE, 0, -1, "β", 0, 0, "08 40 2F 78 00", "H1 (GB 2312)" },
+        /*  9*/ { UNICODE_MODE, 9, -1, "β", 0, 9, "60 04 58 00 71 00", "ECI-9 B1 (ISO 8859-7)" },
+        /* 10*/ { UNICODE_MODE, 29, -1, "β", 0, 29, "60 0E 44 20 17 7C 00", "ECI-29 H1 (GB 2312)" },
+        /* 11*/ { UNICODE_MODE, 26, -1, "β", 0, 26, "60 0D 18 01 67 2C 40", "ECI-26 H1 (UTF-8)" },
+        /* 12*/ { UNICODE_MODE, 26, 200, "β", 0, 26, "60 0D 05 6B 17 7C 00", "ECI-26 H1 (UTF-8) (full multibyte)" },
+        /* 13*/ { DATA_MODE, 0, -1, "β", 0, 0, "30 03 4E 59 00", "B2 (UTF-8)" },
+        /* 14*/ { DATA_MODE, 0, 200, "β", 0, 0, "0B 56 2F 78 00", "H1 (UTF-8) (full multibyte)" },
+        /* 15*/ { UNICODE_MODE, 0, -1, "ÿ", 0, 0, "30 01 7F 00", "B1 (ISO 8859-1)" },
+        /* 16*/ { UNICODE_MODE, 0, -1, "ÿÿÿ", 0, 0, "30 05 7F 7F 7F 60", "B3 (ISO 8859-1)" },
+        /* 17*/ { UNICODE_MODE, 0, -1, "㈩一", 0, 0, "08 15 68 0E 7F 70 00", "H2 (GB 2312)" },
+        /* 18*/ { UNICODE_MODE, 29, -1, "㈩一", 0, 29, "60 0E 44 0A 74 07 3F 78 00", "ECI-29 H2 (GB 2312)" },
+        /* 19*/ { DATA_MODE, 0, -1, "\177\177", 0, 0, "30 02 7F 3F 40", "B2 (ASCII)" },
+        /* 20*/ { DATA_MODE, 0, -1, "\177\177\177", 0, 0, "30 04 7F 3F 5F 60", "B3 (ASCII)" },
+        /* 21*/ { UNICODE_MODE, 0, -1, "123", 0, 0, "10 1E 7F 68", "N3 (ASCII)" },
+        /* 22*/ { UNICODE_MODE, 0, -1, " 123", 0, 0, "11 7A 03 6F 7D 00", "N4 (ASCII)" },
+        /* 23*/ { UNICODE_MODE, 0, -1, "1+23", 0, 0, "11 7B 03 6F 7D 00", "N4 (ASCII)" },
+        /* 24*/ { UNICODE_MODE, 0, -1, "12.3", 0, 0, "11 7C 63 6F 7D 00", "N4 (ASCII)" },
+        /* 25*/ { UNICODE_MODE, 0, -1, "123,", 0, 0, "10 1E 7F 73 76 5E 60", "N3 L1 (ASCII)" },
+        /* 26*/ { UNICODE_MODE, 0, -1, "123,4", 0, 0, "14 1E 7F 51 48 3F 50", "N5 (ASCII)" },
+        /* 27*/ { UNICODE_MODE, 0, -1, "\015\012123", 0, 0, "11 7D 63 6F 7D 00", "N4 (ASCII) (EOL)" },
+        /* 28*/ { UNICODE_MODE, 0, -1, "1\015\01223", 0, 0, "11 7E 03 6F 7D 00", "N4 (ASCII) (EOL)" },
+        /* 29*/ { UNICODE_MODE, 0, -1, "12\015\0123", 0, 0, "11 7E 23 6F 7D 00", "N4 (ASCII) (EOL)" },
+        /* 30*/ { UNICODE_MODE, 0, -1, "123\015\012", 0, 0, "10 1E 7F 7C 01 06 42 40", "N3 B2 (ASCII) (EOL)" },
+        /* 31*/ { UNICODE_MODE, 0, -1, "123\015\0124", 0, 0, "14 1E 7F 5D 48 3F 50", "N5 (ASCII) (EOL)" },
+        /* 32*/ { UNICODE_MODE, 0, -1, "2.2.0", 0, 0, "15 7C 46 73 78 40 07 7A", "N5 (ASCII)" },
+        /* 33*/ { UNICODE_MODE, 0, -1, "2.2.0.5", 0, 0, "30 0C 32 17 0C 45 63 01 38 6A 00", "B7 (ASCII)" },
+        /* 34*/ { UNICODE_MODE, 0, -1, "2.2.0.56", 0, 0, "13 7C 46 73 78 40 07 71 46 0F 74", "N8 (ASCII)" },
+        /* 35*/ { UNICODE_MODE, 0, -1, "1 1234ABCD12.2abcd-12", 0, 0, "13 7A 23 41 2A 3F 68 01 08 3E 4F 66 1E 5F 70 00 44 1F 2F 6E 0F 0F 74", "N6 U4 N4 L4 N3 (ASCII)" },
+        /* 36*/ { UNICODE_MODE, 0, -1, "1 123ABCDE12.2abcd-12", 0, 0, "28 1F 40 42 06 28 59 43 27 01 05 7D 56 42 49 16 34 7F 6D 30 08 2F 60", "M21 (ASCII)" },
+        /* 37*/ { UNICODE_MODE, 0, -1, "国外通信教材 Matlab6.5", 0, 0, "09 63 27 20 4E 24 1F 05 21 58 22 13 7E 1E 4C 78 09 56 00 3D 3F 4A 45 3F 50", "H6 U2 L5 N3 (GB 2312) (Same as D.2 example)" },
+        /* 38*/ { UNICODE_MODE, 0, -1, "AAT", 0, 0, "20 00 4F 30", "U3 (ASCII)" },
+        /* 39*/ { UNICODE_MODE, 0, -1, "aat", 0, 0, "18 00 4F 30", "L3 (ASCII)" },
+        /* 40*/ { UNICODE_MODE, 0, -1, "AAT2556", 0, 0, "20 00 4F 58 7F 65 47 7A", "U3 N4 (ASCII) (note same bit count as M7)" },
+        /* 41*/ { UNICODE_MODE, 0, -1, "AAT2556 ", 0, 0, "29 22 4E 42 0A 14 37 6F 60", "M8 (ASCII)" },
+        /* 42*/ { UNICODE_MODE, 0, -1, "AAT2556 电", 0, 0, "29 22 4E 42 0A 14 37 6F 62 2C 1F 7E 00", "M8 H1 (GB 2312)" },
+        /* 43*/ { UNICODE_MODE, 0, -1, " 200", 0, 0, "11 7A 06 23 7D 00", "N4 (ASCII)" },
+        /* 44*/ { UNICODE_MODE, 0, -1, " 200mA至", 0, 0, "2F 60 40 00 60 2B 78 63 41 7F 40", "M6 H1 (GB 2312)" },
+        /* 45*/ { UNICODE_MODE, 0, -1, "2A tel:86 019 82512738", 0, 0, "28 22 5F 4F 29 48 5F 6D 7E 6F 55 57 1F 28 63 0F 5A 11 64 0F 74", "M2 L5(with control) N15 (ASCII)" },
+        /* 46*/ { UNICODE_MODE, 0, -1, "至2A tel:86 019 82512738", 0, 0, "30 07 56 60 4C 48 13 6A 32 17 7B 3F 5B 75 35 67 6A 18 63 76 44 39 03 7D 00", "B4 L5(with control) N15 (GB 2312)" },
+        /* 47*/ { UNICODE_MODE, 0, -1, "AAT2556 电池充电器＋降压转换器 200mA至2A tel:86 019 82512738", 0, 0, "(62) 29 22 22 1C 4E 41 42 7E 0A 40 14 00 37 7E 6F 00 62 7E 2C 00 1C 7E 4B 00 41 7E 18 00", "M8 H11 M6 B4 L5(with control) N15 (GB 2312) (*NOT SAME* as D3 example, M8 H11 M6 H1 M3 L4(with control) N15, which uses a few more bits)" },
+        /* 48*/ { UNICODE_MODE, 0, -1, "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::", 0, 0, "(588) 37 68 68 68 68 68 74 7E 74 74 74 74 74 3A 3A 3A 3A 3A 3A 3A 1D 1D 1D 1D 1D 1D 1D 0E", "B512 (ASCII)" },
+        /* 49*/ { UNICODE_MODE, 0, -1, "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::\177", 0, 0, "(591) 37 68 68 68 68 68 74 7E 74 74 74 74 74 3A 3A 3A 3A 3A 3A 3A 1D 1D 1D 1D 1D 1D 1D 0E", "B513 (ASCII)" },
+        /* 50*/ { UNICODE_MODE, 0, -1, ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::至", 0, 0, "(591) 37 68 68 68 68 68 74 7C 74 74 74 74 74 3A 3A 3A 3A 3A 3A 3A 1D 1D 1D 1D 1D 1D 1D 0E", "B511 H1 (GB 2312)" },
+        /* 51*/ { UNICODE_MODE, 0, -1, ":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::至:", 0, 0, "(592) 37 68 68 68 68 68 74 7E 74 74 74 74 74 3A 3A 3A 3A 3A 3A 3A 1D 1D 1D 1D 1D 1D 1D 0E", "B513 (GB 2312)" },
     };
     int data_size = sizeof(data) / sizeof(struct item);
 
@@ -165,30 +222,36 @@ static void test_input(void)
 
     for (int i = 0; i < data_size; i++) {
 
-        struct zint_symbol* symbol = ZBarcode_Create();
+        if (index != -1 && i != index) continue;
+
+        struct zint_symbol *symbol = ZBarcode_Create();
         assert_nonnull(symbol, "Symbol not created\n");
 
         symbol->symbology = BARCODE_GRIDMATRIX;
         symbol->input_mode = data[i].input_mode;
         symbol->eci = data[i].eci;
+        if (data[i].option_3 != -1) {
+            symbol->option_3 = data[i].option_3;
+        }
         symbol->debug = ZINT_DEBUG_TEST; // Needed to get codeword dump in errtxt
+        symbol->debug |= debug;
 
         int length = strlen(data[i].data);
 
         ret = ZBarcode_Encode(symbol, data[i].data, length);
         assert_equal(ret, data[i].ret, "i:%d ZBarcode_Encode ret %d != %d\n", i, ret, data[i].ret);
 
-        #ifdef TEST_INPUT_GENERATE_EXPECTED
-        printf("        /*%3d*/ { %s, %d, \"%s\", %s, %d, \"%s\", \"%s\" },\n",
-                i, testUtilInputModeName(data[i].input_mode), data[i].eci, testUtilEscape(data[i].data, length, escaped, sizeof(escaped)), testUtilErrorName(data[i].ret),
-                ret < 5 ? symbol->eci : -1, symbol->errtxt, data[i].comment);
-        #else
-        if (ret < 5) {
+        if (generate) {
+            printf("        /*%3d*/ { %s, %d, %d, \"%s\", %s, %d, \"%s\", \"%s\" },\n",
+                    i, testUtilInputModeName(data[i].input_mode), data[i].eci, data[i].option_3, testUtilEscape(data[i].data, length, escaped, sizeof(escaped)),
+                    testUtilErrorName(data[i].ret), ret < 5 ? symbol->eci : -1, symbol->errtxt, data[i].comment);
+        } else {
+            if (ret < 5) {
 
-            assert_equal(symbol->eci, data[i].expected_eci, "i:%d eci %d != %d\n", i, symbol->eci, data[i].expected_eci);
-            assert_zero(strcmp(symbol->errtxt, data[i].expected), "i:%d strcmp(%s, %s) != 0\n", i, symbol->errtxt, data[i].expected);
+                assert_equal(symbol->eci, data[i].expected_eci, "i:%d eci %d != %d\n", i, symbol->eci, data[i].expected_eci);
+                assert_zero(strcmp(symbol->errtxt, data[i].expected), "i:%d strcmp(%s, %s) != 0\n", i, symbol->errtxt, data[i].expected);
+            }
         }
-        #endif
 
         ZBarcode_Delete(symbol);
     }
@@ -196,13 +259,13 @@ static void test_input(void)
     testFinish();
 }
 
-static void test_encode(void)
-{
+static void test_encode(int index, int generate, int debug) {
+
     testStart("");
 
     int ret;
     struct item {
-        unsigned char* data;
+        unsigned char *data;
         int input_mode;
         int option_1;
         int option_2;
@@ -210,8 +273,8 @@ static void test_encode(void)
 
         int expected_rows;
         int expected_width;
-        char* comment;
-        char* expected;
+        char *comment;
+        char *expected;
     };
     struct item data[] = {
         /*  0*/ { "1234", UNICODE_MODE, -1, -1, 0, 18, 18, "",
@@ -315,7 +378,9 @@ static void test_encode(void)
 
     for (int i = 0; i < data_size; i++) {
 
-        struct zint_symbol* symbol = ZBarcode_Create();
+        if (index != -1 && i != index) continue;
+
+        struct zint_symbol *symbol = ZBarcode_Create();
         assert_nonnull(symbol, "Symbol not created\n");
 
         symbol->symbology = BARCODE_GRIDMATRIX;
@@ -326,30 +391,31 @@ static void test_encode(void)
         if (data[i].option_2 != -1) {
             symbol->option_2 = data[i].option_2;
         }
+        symbol->debug |= debug;
 
         int length = strlen(data[i].data);
 
         ret = ZBarcode_Encode(symbol, data[i].data, length);
         assert_equal(ret, data[i].ret, "i:%d ZBarcode_Encode ret %d != %d (%s)\n", i, ret, data[i].ret, symbol->errtxt);
 
-        #ifdef TEST_ENCODE_GENERATE_EXPECTED
-        printf("        /*%3d*/ { \"%s\", %s, %d, %d, %s, %d, %d, \"%s\",\n",
-                i, data[i].data, testUtilInputModeName(data[i].input_mode), data[i].option_1, data[i].option_2, testUtilErrorName(data[i].ret),
-                symbol->rows, symbol->width, data[i].comment);
-        testUtilModulesDump(symbol, "                    ", "\n");
-        printf("               },\n");
-        #else
-        if (ret < 5) {
-            assert_equal(symbol->rows, data[i].expected_rows, "i:%d symbol->rows %d != %d (%s)\n", i, symbol->rows, data[i].expected_rows, data[i].data);
-            assert_equal(symbol->width, data[i].expected_width, "i:%d symbol->width %d != %d (%s)\n", i, symbol->width, data[i].expected_width, data[i].data);
+        if (generate) {
+            printf("        /*%3d*/ { \"%s\", %s, %d, %d, %s, %d, %d, \"%s\",\n",
+                    i, data[i].data, testUtilInputModeName(data[i].input_mode), data[i].option_1, data[i].option_2, testUtilErrorName(data[i].ret),
+                    symbol->rows, symbol->width, data[i].comment);
+            testUtilModulesDump(symbol, "                    ", "\n");
+            printf("               },\n");
+        } else {
+            if (ret < 5) {
+                assert_equal(symbol->rows, data[i].expected_rows, "i:%d symbol->rows %d != %d (%s)\n", i, symbol->rows, data[i].expected_rows, data[i].data);
+                assert_equal(symbol->width, data[i].expected_width, "i:%d symbol->width %d != %d (%s)\n", i, symbol->width, data[i].expected_width, data[i].data);
 
-            if (ret == 0) {
-                int width, row;
-                ret = testUtilModulesCmp(symbol, data[i].expected, &width, &row);
-                assert_zero(ret, "i:%d testUtilModulesCmp ret %d != 0 width %d row %d (%s)\n", i, ret, width, row, data[i].data);
+                if (ret == 0) {
+                    int width, row;
+                    ret = testUtilModulesCmp(symbol, data[i].expected, &width, &row);
+                    assert_zero(ret, "i:%d testUtilModulesCmp ret %d != 0 width %d row %d (%s)\n", i, ret, width, row, data[i].data);
+                }
             }
         }
-        #endif
 
         ZBarcode_Delete(symbol);
     }
@@ -357,11 +423,16 @@ static void test_encode(void)
     testFinish();
 }
 
-int main()
-{
-    test_options();
-    test_input();
-    test_encode();
+int main(int argc, char *argv[]) {
+
+    testFunction funcs[] = { /* name, func, has_index, has_generate, has_debug */
+        { "test_large", test_large, 1, 0, 1 },
+        { "test_options", test_options, 1, 0, 1 },
+        { "test_input", test_input, 1, 1, 1 },
+        { "test_encode", test_encode, 1, 1, 1 },
+    };
+
+    testRun(argc, argv, funcs, ARRAY_SIZE(funcs));
 
     testReport();
 

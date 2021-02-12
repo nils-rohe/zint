@@ -7,16 +7,10 @@
   },
   "projectEnvironment": {
     "dockerBuild": {
-      "name": "cifuzz/builders:zint",
-      "auth": {
-
-      }
+      "name": "cifuzz/builders:zint"
     },
     "dockerRun": {
-      "name": "cifuzz/builders:zint",
-      "auth": {
-
-      }
+      "name": "cifuzz/builders:zint"
     }
   }
 }
