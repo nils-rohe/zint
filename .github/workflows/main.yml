@@ -11,7 +11,7 @@ env:
 
 jobs:
   fuzz_ean_fuzzer:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - id: start-fuzzing
         name: Build and Instrument
