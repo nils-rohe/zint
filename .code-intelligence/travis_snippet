@@ -1,0 +1,9 @@
+    - stage: TARGET_NAME-fuzzer
+      name: 'TARGET_NAME-fuzzer'
+      env:
+      before_install: skip
+      install: skip
+      before_script: skip
+      script:
+        - ./ci/ci-fuzz/TARGET_NAME.sh
+      after_script: skip
