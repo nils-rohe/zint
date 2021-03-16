@@ -1,9 +1,9 @@
 #!/bin/sh
 export LC_ALL=C
 # Display name of the project.
-PROJECT='bitcoin'
+PROJECT='zint'
 # Display name of the campaign to be run.
-CAMPAIGN='addrman'
+CAMPAIGN='TARGET_NAME'
 # Address of the fuzzing service
 FUZZING_SERVICE_URL='grpc-api.code-intelligence.com:443'
 # Address of the fuzzing web interface
@@ -48,13 +48,13 @@ set -eu
 #CIFUZZ_TOKEN is set as "encrypted value" in the travis
 ./${CICTL} login -t "${CIFUZZ_TOKEN}"
 # Start Fuzzing
-LOG_FILE="start-$(basename "addrman").logs"
+LOG_FILE="start-$(basename "TARGET_NAME").logs"
 
 ./${CICTL} start_fuzzing --daemon_listen_address="${FUZZING_SERVICE_URL}" --project_name="${PROJECT}" --campaign_name="${CAMPAIGN}" --git_branch="${GIT_BRANCH#*/}" | tee "${LOG_FILE}"
 
 set -eu
 # Get the name of the started campaign run from the logs
-LOG_FILE="start-$(basename "addrman").logs"
+LOG_FILE="start-$(basename "TARGET_NAME").logs"
 LINE=$(grep "display_name:" "${LOG_FILE}")
 CAMPAIGN_RUN=${LINE#*"display_name: "}
 
