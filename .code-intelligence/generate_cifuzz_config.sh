@@ -9,20 +9,20 @@ FUZZ_TARGET_DIRECTORY=fuzz_targets #directory to be searched for fuzz target sou
 FUZZ_TARGET_CONFIG_DIRECTORY=fuzz_targets #directory in which the fuzz target configurations will be created (output location)
 CAMPAIGN_DIRECTORY=campaigns #directory in which the fuzz campaign configurations will be created (output location)
 
-PROJECT_NAME=NOT_USED
+PROJECT_NAME=SET_IN_SCRIPT_TEMPLATE
 
 #copy the manually configured part of the travis config file to .travis.yml.
 #Later an entry for every fuzz target will be appended at the file end.
-cat travis_static.yml > .travis.yml
+cat travis_static.yml > ../.travis.yml
 
 #iterate over all C++ files in the FUZZ_TARGET_DIRECTORY
 for file in "$CAMPAIGN_DIRECTORY"/*.json; do
 
-    file_name=${file##*/} #this is the name of the C++ file without the starting "./", for example block.cpp
-    test_name=${file_name%.*} #this is the name of the test, the file extension is removed for this: block.cpp -> block
-    truncated_test_name=${test_name:1: -9}
-    echo $(truncated_test_name)
-    #test_name=$(jq -r '.name' $file)
+    #file_name=${file##*/} #this is the name of the C++ file without the starting "./", for example block.cpp
+    #test_name=${file_name%.*} #this is the name of the test, the file extension is removed for this: block.cpp -> block
+    #truncated_test_name=${test_name:1: -9}
+    #echo $(truncated_test_name)
+    test_name=$(jq -r '.displayName' $file)
     #campaign_name=projects/${PROJECT_NAME}/campaigns/${test_name}
     #echo "Campaign name: ${campaign_name}"
     
