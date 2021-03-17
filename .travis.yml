@@ -1,0 +1,30 @@
+version: ~> 1.0
+
+dist: bionic
+os: linux
+language: minimal
+arch: amd64
+cache:
+  directories:
+stages:
+  - test
+env:
+  global:
+    - CI_RETRY_EXE="travis_retry"
+    - CACHE_ERR_MSG="Error! Initial build successful, but not enough time remains to run later build stages and tests. See https://docs.travis-ci.com/user/customizing-the-build#build-timeouts . Please manually re-run this job by using the travis restart button. The next run should not time out because the build cache has been saved."
+before_install:
+install:
+before_script:
+script:
+after_script:
+jobs:
+  include:
+    - stage: ean_fuzzer-fuzzer
+      name: 'ean_fuzzer-fuzzer'
+      env:
+      before_install: skip
+      install: skip
+      before_script: skip
+      script:
+        - ./.code-intelligence/ci/ean_fuzzer.sh
+      after_script: skip
