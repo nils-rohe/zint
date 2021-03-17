@@ -58,7 +58,6 @@ LOG_FILE="start-$(basename "TARGET_NAME").logs"
 LINE=$(grep "display_name:" "${LOG_FILE}")
 CAMPAIGN_RUN=${LINE#*"display_name: "}
 
-#sleep 10
 
 # Monitor Fuzzing
 ./${CICTL} monitor_campaign_run \
