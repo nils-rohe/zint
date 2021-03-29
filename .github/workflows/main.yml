@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, fuzzing_v2.19.1 ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, fuzzing_v2.19.1 ]
 
 env:
   PROJECT_NAME: zint  

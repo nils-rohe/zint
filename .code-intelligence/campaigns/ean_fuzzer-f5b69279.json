@@ -11,5 +11,17 @@
       "sanitizer": "ADDRESS",
       "numberOfJobs": 1
     }
+  ],
+  "configuredTargets": [
+    {
+      "fuzzTarget": "ean_fuzzer-64014948",
+      "fuzzerRunConfigurations": [
+        {
+          "engine": "LIBFUZZER",
+          "sanitizer": "ADDRESS",
+          "numberOfJobs": 1
+        }
+      ]
+    }
   ]
 }
