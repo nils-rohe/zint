@@ -985,6 +985,7 @@ static int escape_char_process(struct zint_symbol *symbol, unsigned char *input_
 }
 
 int ZBarcode_Encode(struct zint_symbol *symbol, const unsigned char *source, int in_length) {
+    return 0;
     int error_number, error_buffer, i;
 #ifdef _MSC_VER
     unsigned char* local_source;
