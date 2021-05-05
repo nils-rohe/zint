@@ -1,8 +1,9 @@
 /* tif.c - Aldus Tagged Image File Format support */
+/* TIFF Revision 6.0 https://www.adobe.io/content/dam/udp/en/open/standards/tiff/TIFF6.pdf */
 
 /*
     libzint - the open source barcode library
-    Copyright (C) 2016-2017 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2016 - 2020 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -32,9 +33,8 @@
 /* vim: set ts=4 sw=4 et : */
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <math.h>
+#include <assert.h>
 #include "common.h"
 #include "tif.h"
 #ifdef _MSC_VER
@@ -47,8 +47,9 @@ INTERNAL int tif_pixel_plot(struct zint_symbol *symbol, char *pixelbuf) {
     int fgred, fggrn, fgblu, bgred, bggrn, bgblu;
     int i;
     int rows_per_strip, strip_count;
-    int free_memory;
-    int row, column, strip, bytes_put;
+    unsigned int free_memory;
+    int row, column, strip;
+    unsigned int bytes_put;
     FILE *tif_file;
 #ifdef _MSC_VER
     uint32_t* strip_offset;
@@ -67,25 +68,30 @@ INTERNAL int tif_pixel_plot(struct zint_symbol *symbol, char *pixelbuf) {
     bggrn = (16 * ctoi(symbol->bgcolour[2])) + ctoi(symbol->bgcolour[3]);
     bgblu = (16 * ctoi(symbol->bgcolour[4])) + ctoi(symbol->bgcolour[5]);
 
+    /* TIFF Rev 6 Section 7 p.27 "Set RowsPerStrip such that the size of each strip is about 8K bytes...
+     * Note that extremely wide high resolution images may have rows larger than 8K bytes; in this case,
+     * RowsPerStrip should be 1, and the strip will be larger than 8K." */
     rows_per_strip = 8192 / (symbol->bitmap_width * 3);
     if (rows_per_strip == 0) {
         rows_per_strip = 1;
     }
 
+    /* Suppresses clang-tidy clang-analyzer-core.VLASize warning */
+    assert(symbol->bitmap_height > 0);
+
     strip_count = symbol->bitmap_height / rows_per_strip;
     if ((symbol->bitmap_height % rows_per_strip) != 0) {
         strip_count++;
     }
-    
+
     if (rows_per_strip > symbol->bitmap_height) {
         rows_per_strip = symbol->bitmap_height;
     }
-    
-    if (strip_count == 1) {
-        rows_per_strip = (rows_per_strip / 2) + 1;
-        strip_count++;
+
+    if (symbol->debug & ZINT_DEBUG_PRINT) {
+        printf("TIFF (%dx%d) Strip Count %d, Rows Per Strip %d\n", symbol->bitmap_width, symbol->bitmap_height, strip_count, rows_per_strip);
     }
-    
+
 #ifndef _MSC_VER
     uint32_t strip_offset[strip_count];
     uint32_t strip_bytes[strip_count];
@@ -113,10 +119,6 @@ INTERNAL int tif_pixel_plot(struct zint_symbol *symbol, char *pixelbuf) {
     }
 
     if (free_memory > 0xffff0000) {
-#ifdef _MSC_VER
-        free(strip_offset);
-        free(strip_bytes);
-#endif
         strcpy(symbol->errtxt, "670: Output file size too big");
         return ZINT_ERROR_MEMORY;
     }
@@ -144,25 +146,68 @@ INTERNAL int tif_pixel_plot(struct zint_symbol *symbol, char *pixelbuf) {
 
     fwrite(&header, sizeof(tiff_header_t), 1, tif_file);
     free_memory += sizeof(tiff_ifd_t);
-    
+
     /* Pixel data */
     strip = 0;
     bytes_put = 0;
     for (row = 0; row < symbol->bitmap_height; row++) {
         for (column = 0; column < symbol->bitmap_width; column++) {
-            if (pixelbuf[(row * symbol->bitmap_width) + column] == '1') {
-                putc(fgred, tif_file);
-                putc(fggrn, tif_file);
-                putc(fgblu, tif_file);
-            } else {
-                putc(bgred, tif_file);
-                putc(bggrn, tif_file);
-                putc(bgblu, tif_file);
+            switch(pixelbuf[(row * symbol->bitmap_width) + column]) {
+                case 'W': // White
+                    putc(255, tif_file);
+                    putc(255, tif_file);
+                    putc(255, tif_file);
+                    break;
+                case 'C': // Cyan
+                    putc(0, tif_file);
+                    putc(255, tif_file);
+                    putc(255, tif_file);
+                    break;
+                case 'B': // Blue
+                    putc(0, tif_file);
+                    putc(0, tif_file);
+                    putc(255, tif_file);
+                    break;
+                case 'M': // Magenta
+                    putc(255, tif_file);
+                    putc(0, tif_file);
+                    putc(255, tif_file);
+                    break;
+                case 'R': // Red
+                    putc(255, tif_file);
+                    putc(0, tif_file);
+                    putc(0, tif_file);
+                    break;
+                case 'Y': // Yellow
+                    putc(255, tif_file);
+                    putc(255, tif_file);
+                    putc(0, tif_file);
+                    break;
+                case 'G': // Green
+                    putc(0, tif_file);
+                    putc(255, tif_file);
+                    putc(0, tif_file);
+                    break;
+                case 'K': // Black
+                    putc(0, tif_file);
+                    putc(0, tif_file);
+                    putc(0, tif_file);
+                    break;
+                case '1':
+                    putc(fgred, tif_file);
+                    putc(fggrn, tif_file);
+                    putc(fgblu, tif_file);
+                    break;
+                default:
+                    putc(bgred, tif_file);
+                    putc(bggrn, tif_file);
+                    putc(bgblu, tif_file);
+                    break;
             }
             bytes_put += 3;
         }
-        
-        if ((bytes_put + 3) >= strip_bytes[strip]) {
+
+        if (strip < strip_count && (bytes_put + 3) >= strip_bytes[strip]) {
             // End of strip, pad if strip length is odd
             if (strip_bytes[strip] % 2 == 1) {
                 putc(0, tif_file);
@@ -210,8 +255,12 @@ INTERNAL int tif_pixel_plot(struct zint_symbol *symbol, char *pixelbuf) {
     ifd.strip_offsets.tag = 0x0111;
     ifd.strip_offsets.type = 4; // LONG
     ifd.strip_offsets.count = strip_count;
-    ifd.strip_offsets.offset = free_memory;
-    free_memory += strip_count * 4;
+    if (strip_count == 1) {
+        ifd.strip_offsets.offset = strip_offset[0];
+    } else {
+        ifd.strip_offsets.offset = free_memory;
+        free_memory += strip_count * 4;
+    }
 
     ifd.samples_per_pixel.tag = 0x0115;
     ifd.samples_per_pixel.type = 3;
@@ -226,8 +275,12 @@ INTERNAL int tif_pixel_plot(struct zint_symbol *symbol, char *pixelbuf) {
     ifd.strip_byte_counts.tag = 0x0117;
     ifd.strip_byte_counts.type = 4;
     ifd.strip_byte_counts.count = strip_count;
-    ifd.strip_byte_counts.offset = free_memory;
-    free_memory += strip_count * 4;
+    if (strip_count == 1) {
+        ifd.strip_byte_counts.offset = strip_bytes[0];
+    } else {
+        ifd.strip_byte_counts.offset = free_memory;
+        free_memory += strip_count * 4;
+    }
 
     ifd.x_resolution.tag = 0x011a;
     ifd.x_resolution.type = 5;
@@ -259,14 +312,16 @@ INTERNAL int tif_pixel_plot(struct zint_symbol *symbol, char *pixelbuf) {
     fwrite(&temp, 2, 1, tif_file); // Green Bytes
     fwrite(&temp, 2, 1, tif_file); // Blue Bytes
 
-    /* Strip offsets */
-    for(i = 0; i < strip_count; i++) {
-        fwrite(&strip_offset[i], 4, 1, tif_file);
-    }
+    if (strip_count != 1) {
+        /* Strip offsets */
+        for (i = 0; i < strip_count; i++) {
+            fwrite(&strip_offset[i], 4, 1, tif_file);
+        }
 
-    /* Strip byte lengths */
-    for(i = 0; i < strip_count; i++) {
-        fwrite(&strip_bytes[i], 4, 1, tif_file);
+        /* Strip byte lengths */
+        for (i = 0; i < strip_count; i++) {
+            fwrite(&strip_bytes[i], 4, 1, tif_file);
+        }
     }
 
     /* X Resolution */

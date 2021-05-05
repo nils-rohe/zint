@@ -1,7 +1,7 @@
 /* qr.c Handles QR Code, Micro QR Code, UPNQR and rMQR
 
     libzint - the open source barcode library
-    Copyright (C) 2009 - 2019 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2009 - 2020 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -30,7 +30,6 @@
  */
 /* vim: set ts=4 sw=4 et : */
 
-#include <string.h>
 #ifdef _MSC_VER
 #include <malloc.h>
 #endif
@@ -76,8 +75,8 @@ static int is_alpha(const unsigned int glyph, const int gs1) {
 #define QR_MULT 6
 
 /* Whether in numeric or not. If in numeric, *p_end is set to position after numeric, and *p_cost is set to per-numeric cost */
-static int in_numeric(const unsigned int jisdata[], const size_t length, const int posn, unsigned int* p_end, unsigned int* p_cost) {
-    int i, digit_cnt;
+static int in_numeric(const unsigned int jisdata[], const size_t length, const unsigned int posn, unsigned int* p_end, unsigned int* p_cost) {
+    unsigned int i, digit_cnt;
 
     if (posn < *p_end) {
         return 1;
@@ -98,7 +97,7 @@ static int in_numeric(const unsigned int jisdata[], const size_t length, const i
 }
 
 /* Whether in alpha or not. If in alpha, *p_end is set to position after alpha, and *p_cost is set to per-alpha cost. For GS1, *p_pcent set if 2nd char percent */
-static int in_alpha(const unsigned int jisdata[], const size_t length, const int posn, unsigned int* p_end, unsigned int* p_cost, unsigned int* p_pcent, unsigned int gs1) {
+static int in_alpha(const unsigned int jisdata[], const size_t length, const unsigned int posn, unsigned int* p_end, unsigned int* p_cost, unsigned int* p_pcent, unsigned int gs1) {
     int two_alphas;
 
     if (posn < *p_end) {
@@ -200,6 +199,7 @@ static unsigned int* qr_head_costs(unsigned int state[]) {
 
 /* Costs of switching modes from k to j */
 static unsigned int qr_switch_cost(unsigned int state[], const int k, const int j) {
+    (void)k; /* Unused */
     return state[j]; /* Same as head cost */
 }
 
@@ -239,7 +239,7 @@ static void qr_cur_cost(unsigned int state[], const unsigned int jisdata[], cons
 static void qr_define_mode(char mode[], const unsigned int jisdata[], const size_t length, const int gs1, const int version, const int debug) {
     unsigned int state[11] = {
         0 /*N*/, 0 /*A*/, 0 /*B*/, 0 /*K*/,
-        version, gs1,
+        (unsigned int) version, (unsigned int) gs1,
         0 /*numeric_end*/, 0 /*numeric_cost*/, 0 /*alpha_end*/, 0 /*alpha_cost*/, 0 /*alpha_pcent*/
     };
 
@@ -326,7 +326,7 @@ static int terminator_bits(const int version) {
 /* Convert input data to a binary stream and add padding */
 static void qr_binary(unsigned char datastream[], const int version, const int target_codewords, const char mode[], const unsigned int jisdata[], const size_t length,
             const int gs1, const int eci, const int est_binlen, const int debug) {
-    int position = 0;
+    unsigned int position = 0;
     int i;
     int termbits, padbits;
     int current_binlen, current_bytes;
@@ -360,7 +360,7 @@ static void qr_binary(unsigned char datastream[], const int version, const int t
     }
 
     if (debug & ZINT_DEBUG_PRINT) {
-        for (i = 0; i < length; i++) {
+        for (i = 0; i < (int) length; i++) {
             printf("%c", mode[i]);
         }
         printf("\n");
@@ -691,17 +691,20 @@ static void add_ecc(unsigned char fullstream[], const unsigned char datastream[]
     qty_short_blocks = blocks - qty_long_blocks;
     ecc_block_length = ecc_cw / blocks;
 
+    /* Suppress some clang-tidy clang-analyzer-core.UndefinedBinaryOperatorResult/uninitialized.Assign warnings */
+    assert(short_data_block_length >= 0);
+    assert(ecc_block_length * blocks == ecc_cw);
 
 #ifndef _MSC_VER
-    unsigned char data_block[short_data_block_length + 2];
-    unsigned char ecc_block[ecc_block_length + 2];
-    unsigned char interleaved_data[data_cw + 2];
-    unsigned char interleaved_ecc[ecc_cw + 2];
+    unsigned char data_block[short_data_block_length + 1];
+    unsigned char ecc_block[ecc_block_length];
+    unsigned char interleaved_data[data_cw];
+    unsigned char interleaved_ecc[ecc_cw];
 #else
-    data_block = (unsigned char *) _alloca(short_data_block_length + 2);
-    ecc_block = (unsigned char *) _alloca(ecc_block_length + 2);
-    interleaved_data = (unsigned char *) _alloca(data_cw + 2);
-    interleaved_ecc = (unsigned char *) _alloca(ecc_cw + 2);
+    data_block = (unsigned char *) _alloca(short_data_block_length + 1);
+    ecc_block = (unsigned char *) _alloca(ecc_block_length);
+    interleaved_data = (unsigned char *) _alloca(data_cw);
+    interleaved_ecc = (unsigned char *) _alloca(ecc_cw);
 #endif
 
     posn = 0;
@@ -757,10 +760,10 @@ static void add_ecc(unsigned char fullstream[], const unsigned char datastream[]
     }
 
     for (j = 0; j < data_cw; j++) {
-        fullstream[j] = interleaved_data[j];
+        fullstream[j] = interleaved_data[j]; // NOLINT suppress clang-tidy warning: interleaved_data[data_cw] fully set
     }
     for (j = 0; j < ecc_cw; j++) {
-        fullstream[j + data_cw] = interleaved_ecc[j];
+        fullstream[j + data_cw] = interleaved_ecc[j]; // NOLINT suppress clang-tidy warning: interleaved_ecc[ecc_cw] fully set
     }
 
     if (debug & ZINT_DEBUG_PRINT) {
@@ -899,7 +902,7 @@ static void populate_grid(unsigned char* grid, const int h_size, const int v_siz
     n = cw * 8;
     y = v_size - 1;
     i = 0;
-    do {
+    while (i < n) {
         int x = (h_size - 2) - (row * 2);
 
         if ((x < 6) && (v_size == h_size))
@@ -942,7 +945,7 @@ static void populate_grid(unsigned char* grid, const int h_size, const int v_siz
             y = v_size - 1;
             direction = 1;
         }
-    } while (i < n);
+    }
 }
 
 #ifdef ZINTLOG
@@ -986,6 +989,8 @@ static int evaluate(unsigned char *eval,const int size,const int pattern) {
     char* local = (char *) _alloca((size * size) * sizeof (char));
 #endif
 
+    /* Suppresses clang-tidy clang-analyzer-core.UndefinedBinaryOperatorResult warnings */
+    assert(size > 0);
 
 #ifdef ZINTLOG
     write_log("");
@@ -1428,9 +1433,8 @@ static size_t blockLength(const size_t start,const char inputMode[],const size_t
 
 static int getBinaryLength(const int version, char inputMode[], const unsigned int inputData[], const size_t inputLength, const int gs1, const int eci, const int debug) {
     /* Calculate the actual bitlength of the proposed binary string */
-    size_t i;
+    size_t i, j;
     char currentMode;
-    int    j;
     int count = 0;
     int alphalength;
     int blocklength;
@@ -1526,6 +1530,7 @@ INTERNAL int qr_code(struct zint_symbol *symbol, const unsigned char source[], s
     int i, j, est_binlen;
     int ecc_level, autosize, version, max_cw, target_codewords, blocks, size;
     int bitmask, gs1;
+    int full_multibyte;
     int canShrink;
 
 #ifndef _MSC_VER
@@ -1540,14 +1545,15 @@ INTERNAL int qr_code(struct zint_symbol *symbol, const unsigned char source[], s
 #endif
 
     gs1 = ((symbol->input_mode & 0x07) == GS1_MODE);
+    full_multibyte = symbol->option_3 == ZINT_FULL_MULTIBYTE; /* If set use Kanji mode in DATA_MODE or for single-byte Latin */
 
     if ((symbol->input_mode & 0x07) == DATA_MODE) {
-        sjis_cpy(source, &length, jisdata);
+        sjis_cpy(source, &length, jisdata, full_multibyte);
     } else {
         int done = 0;
         if (symbol->eci != 20) { /* Unless ECI 20 (Shift JIS) */
             /* Try single byte (Latin) conversion first */
-            int error_number = sjis_utf8tosb(symbol->eci && symbol->eci <= 899 ? symbol->eci : 3, source, &length, jisdata);
+            int error_number = sjis_utf8tosb(symbol->eci && symbol->eci <= 899 ? symbol->eci : 3, source, &length, jisdata, full_multibyte);
             if (error_number == 0) {
                 done = 1;
             } else if (symbol->eci && symbol->eci <= 899) {
@@ -1830,6 +1836,8 @@ static void micro_qr_m1(struct zint_symbol *symbol, char binary_data[]) {
     }
 #ifdef ZINT_TEST
     if (symbol->debug & ZINT_DEBUG_TEST) debug_test_codeword_dump(symbol, data_blocks, data_codewords);
+#else
+    (void)symbol; /* Unused */
 #endif
 
     /* Calculate Reed-Solomon error codewords */
@@ -1911,6 +1919,8 @@ static void micro_qr_m2(struct zint_symbol *symbol, char binary_data[], const in
     }
 #ifdef ZINT_TEST
     if (symbol->debug & ZINT_DEBUG_TEST) debug_test_codeword_dump(symbol, data_blocks, data_codewords);
+#else
+    (void)symbol; /* Unused */
 #endif
 
     /* Calculate Reed-Solomon error codewords */
@@ -2026,6 +2036,8 @@ static void micro_qr_m3(struct zint_symbol *symbol, char binary_data[], const in
     }
 #ifdef ZINT_TEST
     if (symbol->debug & ZINT_DEBUG_TEST) debug_test_codeword_dump(symbol, data_blocks, data_codewords);
+#else
+    (void)symbol; /* Unused */
 #endif
 
     /* Calculate Reed-Solomon error codewords */
@@ -2116,6 +2128,8 @@ static void micro_qr_m4(struct zint_symbol *symbol, char binary_data[], const in
     }
 #ifdef ZINT_TEST
     if (symbol->debug & ZINT_DEBUG_TEST) debug_test_codeword_dump(symbol, data_blocks, data_codewords);
+#else
+    (void)symbol; /* Unused */
 #endif
 
     /* Calculate Reed-Solomon error codewords */
@@ -2168,8 +2182,8 @@ static void micro_setup_grid(unsigned char* grid,const int size) {
 static void micro_populate_grid(unsigned char* grid,const int size,const char full_stream[]) {
     int direction = 1; /* up */
     int row = 0; /* right hand side */
-    size_t n;
-    int i, y;
+    size_t n, i;
+    int y;
 
     n = strlen(full_stream);
     y = size - 1;
@@ -2334,9 +2348,9 @@ static int micro_apply_bitmask(unsigned char *grid,const int size) {
 }
 
 INTERNAL int microqr(struct zint_symbol *symbol, const unsigned char source[], size_t length) {
-    size_t i;
-    int    j, size;
+    size_t i, size, j;
     char full_stream[200];
+    int full_multibyte;
 
     unsigned int jisdata[40];
     char mode[40];
@@ -2374,11 +2388,13 @@ INTERNAL int microqr(struct zint_symbol *symbol, const unsigned char source[], s
         ecc_level = symbol->option_1;
     }
 
+    full_multibyte = symbol->option_3 == ZINT_FULL_MULTIBYTE; /* If set use Kanji mode in DATA_MODE or for single-byte Latin */
+
     if ((symbol->input_mode & 0x07) == DATA_MODE) {
-        sjis_cpy(source, &length, jisdata);
+        sjis_cpy(source, &length, jisdata, full_multibyte);
     } else {
         /* Try ISO 8859-1 conversion first */
-        int error_number = sjis_utf8tosb(3, source, &length, jisdata);
+        int error_number = sjis_utf8tosb(3, source, &length, jisdata, full_multibyte);
         if (error_number != 0) {
             /* Try Shift-JIS */
             error_number = sjis_utf8tomb(symbol, source, &length, jisdata);
@@ -2656,7 +2672,7 @@ INTERNAL int upnqr(struct zint_symbol *symbol, const unsigned char source[], siz
     switch (symbol->input_mode & 0x07) {
         case DATA_MODE:
             /* Input is already in ISO-8859-2 format */
-            for (i = 0; i < length; i++) {
+            for (i = 0; i < (int) length; i++) {
                 jisdata[i] = source[i];
                 mode[i] = 'B';
             }
@@ -2671,7 +2687,7 @@ INTERNAL int upnqr(struct zint_symbol *symbol, const unsigned char source[], siz
                 strcpy(symbol->errtxt, "572: Invalid characters in input data");
                 return error_number;
             }
-            for (i = 0; i < length; i++) {
+            for (i = 0; i < (int) length; i++) {
                 jisdata[i] = preprocessed[i];
                 mode[i] = 'B';
             }
@@ -2742,7 +2758,7 @@ INTERNAL int upnqr(struct zint_symbol *symbol, const unsigned char source[], siz
     return 0;
 }
 
-static void setup_rmqr_grid(unsigned char* grid,const int h_size,const int v_size,const int version) {
+static void setup_rmqr_grid(unsigned char* grid, const int h_size, const int v_size) {
     int i, j;
     char alignment[] = {0x1F, 0x11, 0x15, 0x11, 0x1F};
     int h_version, finder_position;
@@ -2859,6 +2875,7 @@ INTERNAL int rmqr(struct zint_symbol *symbol, const unsigned char source[], size
     int i, j, est_binlen;
     int ecc_level, autosize, version, max_cw, target_codewords, blocks, h_size, v_size;
     int gs1;
+    int full_multibyte;
     int footprint, best_footprint, format_data;
     unsigned int left_format_info, right_format_info;
 
@@ -2874,12 +2891,13 @@ INTERNAL int rmqr(struct zint_symbol *symbol, const unsigned char source[], size
 #endif
 
     gs1 = ((symbol->input_mode & 0x07) == GS1_MODE);
+    full_multibyte = symbol->option_3 == ZINT_FULL_MULTIBYTE; /* If set use Kanji mode in DATA_MODE or for single-byte Latin */
 
     if ((symbol->input_mode & 0x07) == DATA_MODE) {
-        sjis_cpy(source, &length, jisdata);
+        sjis_cpy(source, &length, jisdata, full_multibyte);
     } else {
         /* Try ISO 8859-1 conversion first */
-        int error_number = sjis_utf8tosb(3, source, &length, jisdata);
+        int error_number = sjis_utf8tosb(3, source, &length, jisdata, full_multibyte);
         if (error_number != 0) {
             /* Try Shift-JIS */
             error_number = sjis_utf8tomb(symbol, source, &length, jisdata);
@@ -3033,7 +3051,7 @@ INTERNAL int rmqr(struct zint_symbol *symbol, const unsigned char source[], size
         }
     }
 
-    setup_rmqr_grid(grid, h_size, v_size, version);
+    setup_rmqr_grid(grid, h_size, v_size);
     populate_grid(grid, h_size, v_size, fullstream, rmqr_total_codewords[version]);
 
     /* apply bitmask */
