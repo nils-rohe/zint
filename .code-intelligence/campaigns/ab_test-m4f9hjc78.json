@@ -3,9 +3,9 @@
   "displayName": "system_test_collection",
   "maxRunTime": "600s",
   "fuzzTargets": [
-    "fuzz_library_ZBarcode_Encode-de149784",
-    "ean_fuzzer-64014948",
-    "fuzz_library_ZBarcode_Encode-cc195ddd"
+    "LmNvZGUtaW50ZWxsaWdlbmNlL2Z1enpfdGFyZ2V0cy9jb2RhYmxvY2tmX2Z1enplci5jcHA=",
+    "LmNvZGUtaW50ZWxsaWdlbmNlL2Z1enpfdGFyZ2V0cy9lYW5fZnV6emVyLmNwcA==",
+    "LmNvZGUtaW50ZWxsaWdlbmNlL2Z1enpfdGFyZ2V0cy9hdXNwb3N0X2Z1enplci5jcHA="
   ],
   "fuzzerRunConfigurations": [
     {

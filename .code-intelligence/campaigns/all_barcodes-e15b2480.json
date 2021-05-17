@@ -3,12 +3,12 @@
   "displayName": "all_barcodes",
   "maxRunTime": "600s",
   "fuzzTargets": [
-    "fuzz_library_ZBarcode_Encode-de149784",
-    "ean_fuzzer-64014948",
-    "fuzz_library_ZBarcode_Encode-cc195ddd",
-    "fuzz_library_ZBarcode_Encode-9f7933d7",
-    "fuzz_library_ZBarcode_Encode-47fa07dd",
-    "fuzz_library_ZBarcode_Encode-566f58e5"
+    "LmNvZGUtaW50ZWxsaWdlbmNlL2Z1enpfdGFyZ2V0cy9jb2RhYmxvY2tmX2Z1enplci5jcHA=",
+    "LmNvZGUtaW50ZWxsaWdlbmNlL2Z1enpfdGFyZ2V0cy9lYW5fZnV6emVyLmNwcA==",
+    "LmNvZGUtaW50ZWxsaWdlbmNlL2Z1enpfdGFyZ2V0cy9hdXNwb3N0X2Z1enplci5jcHA=",
+    "LmNvZGUtaW50ZWxsaWdlbmNlL2Z1enpfdGFyZ2V0cy9jb2Rlb25lX2Z1enplci5jcHA=",
+    "LmNvZGUtaW50ZWxsaWdlbmNlL2Z1enpfdGFyZ2V0cy9kb3Rjb2RlX2Z1enplci5jcHA=",
+    "LmNvZGUtaW50ZWxsaWdlbmNlL2Z1enpfdGFyZ2V0cy92aW5fZnV6emVyLmNwcA=="
   ],
   "fuzzerRunConfigurations": [
     {
