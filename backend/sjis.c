@@ -1,6 +1,6 @@
 /*
     libzint - the open source barcode library
-    Copyright (C) 2008-2019 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2008-2020 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -53,6 +53,9 @@
  * If not, see <https://www.gnu.org/licenses/>.
  */
 #include <string.h>
+#ifdef _MSC_VER
+#include <malloc.h>
+#endif
 #include "common.h"
 #include "sjis.h"
 
@@ -1443,7 +1446,7 @@ static const Summary16 jisx0208_uni2indx_pageff[15] = {
 
 static int jisx0208_wctomb(unsigned int* r, unsigned int wc) {
     const Summary16 *summary = NULL;
-    if (wc >= 0x0000 && wc < 0x0100) {
+    if (wc < 0x0100) {
         summary = &jisx0208_uni2indx_page00[(wc>>4)];
     } else if (wc >= 0x0300 && wc < 0x0460) {
         summary = &jisx0208_uni2indx_page03[(wc>>4)-0x030];
@@ -1513,8 +1516,8 @@ INTERNAL int sjis_wctomb_zint(unsigned int* r, unsigned int wc) {
 
 /* Convert UTF-8 string to Shift JIS and place in array of ints */
 INTERNAL int sjis_utf8tomb(struct zint_symbol *symbol, const unsigned char source[], size_t* p_length, unsigned int* jisdata) {
-    int i, error_number;
-    unsigned int length;
+    int error_number;
+    unsigned int i, length;
 #ifndef _MSC_VER
     unsigned int utfdata[*p_length + 1];
 #else
@@ -1537,7 +1540,7 @@ INTERNAL int sjis_utf8tomb(struct zint_symbol *symbol, const unsigned char sourc
 }
 
 /* Convert UTF-8 string to single byte ECI and place in array of ints */
-INTERNAL int sjis_utf8tosb(int eci, const unsigned char source[], size_t* p_length, unsigned int* jisdata) {
+INTERNAL int sjis_utf8tosb(int eci, const unsigned char source[], size_t* p_length, unsigned int* jisdata, int full_multibyte) {
     int error_number;
 #ifndef _MSC_VER
     unsigned char single_byte[*p_length + 1];
@@ -1551,30 +1554,38 @@ INTERNAL int sjis_utf8tosb(int eci, const unsigned char source[], size_t* p_leng
         return error_number;
     }
 
-    sjis_cpy(single_byte, p_length, jisdata);
+    sjis_cpy(single_byte, p_length, jisdata, full_multibyte);
 
     return 0;
 }
 
-/* Copy byte input stream to array of ints, putting double-bytes that match QR Kanji mode in single entry */
-INTERNAL void sjis_cpy(const unsigned char source[], size_t* p_length, unsigned int* jisdata) {
-    int i, j;
-    unsigned int jis, length;
+/* If `full_multibyte` set, copy byte input stream to array of ints, putting double-bytes that match QR Kanji mode in a single entry.
+ * If `full_multibyte` not set, do a straight copy */
+INTERNAL void sjis_cpy(const unsigned char source[], size_t* p_length, unsigned int* jisdata, int full_multibyte) {
+    unsigned int i, j, jis, length;
     unsigned char c;
-    for (i = 0, j = 0, length = *p_length; i < length; i++, j++) {
-        c = source[i];
-        if (((c >= 0x81 && c <= 0x9F) || (c >= 0xE0 && c <= 0xEB)) && length - i >= 2) {
-            jis = (c << 8) | source[i + 1];
-            if ((jis >= 0x8140 && jis <= 0x9FFC) || (jis >= 0xE040 && jis <= 0xEBBF)) {
-                /* This may or may not be valid Shift JIS, but don't care as long as it can be encoded in QR Kanji mode */
-                jisdata[j] = jis;
-                i++;
+
+    if (full_multibyte) {
+        for (i = 0, j = 0, length = *p_length; i < length; i++, j++) {
+            c = source[i];
+            if (((c >= 0x81 && c <= 0x9F) || (c >= 0xE0 && c <= 0xEB)) && length - i >= 2) {
+                jis = (c << 8) | source[i + 1];
+                if ((jis >= 0x8140 && jis <= 0x9FFC) || (jis >= 0xE040 && jis <= 0xEBBF)) {
+                    /* This may or may not be valid Shift JIS, but don't care as long as it can be encoded in QR Kanji mode */
+                    jisdata[j] = jis;
+                    i++;
+                } else {
+                    jisdata[j] = c;
+                }
             } else {
                 jisdata[j] = c;
             }
-        } else {
-            jisdata[j] = c;
+        }
+        *p_length = j;
+    } else {
+        /* Straight copy */
+        for (i = 0, length = *p_length; i < length; i++) {
+            jisdata[i] = source[i];
         }
     }
-    *p_length = j;
 }

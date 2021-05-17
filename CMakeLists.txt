@@ -9,7 +9,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 #comment or remove the above line before release
 
 set (ZINT_VERSION_MAJOR 2)
-set (ZINT_VERSION_MINOR 7)
+set (ZINT_VERSION_MINOR 9)
 set (ZINT_VERSION_RELEASE 0)
 set (ZINT_VERSION "${ZINT_VERSION_MAJOR}.${ZINT_VERSION_MINOR}.${ZINT_VERSION_RELEASE}" )
 
@@ -20,6 +20,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules" )
 set(ZINT_DEBUG FALSE CACHE BOOL "Set debug compile flag")
 set(ZINT_SANITIZE FALSE CACHE BOOL "Set sanitize compile/link flags")
 set(ZINT_TEST FALSE CACHE BOOL "Set test compile flag")
+set(ZINT_STATIC FALSE CACHE BOOL "Build static library")
 
 include (SetPaths.cmake)
 

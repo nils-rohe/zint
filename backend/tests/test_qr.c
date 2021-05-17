@@ -1,6 +1,6 @@
 /*
     libzint - the open source barcode library
-    Copyright (C) 2008-2019 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2019 - 2020 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -31,28 +31,13 @@
 
 #include "testcommon.h"
 
-//#define TEST_QR_INPUT_GENERATE_EXPECTED 1
-//#define TEST_QR_GS1_GENERATE_EXPECTED 1
-//#define TEST_QR_OPTIMIZE_GENERATE_EXPECTED 1
-//#define TEST_QR_ENCODE_GENERATE_EXPECTED 1
-//#define TEST_MICROQR_INPUT_GENERATE_EXPECTED 1
-//#define TEST_MICROQR_PADDING_GENERATE_EXPECTED 1
-//#define TEST_MICROQR_OPTIMIZE_GENERATE_EXPECTED 1
-//#define TEST_MICROQR_ENCODE_GENERATE_EXPECTED 1
-//#define TEST_UPNQR_INPUT_GENERATE_EXPECTED 1
-//#define TEST_UPNQR_ENCODE_GENERATE_EXPECTED 1
-//#define TEST_RMQR_INPUT_GENERATE_EXPECTED 1
-//#define TEST_RMQR_GS1_GENERATE_EXPECTED 1
-//#define TEST_RMQR_OPTIMIZE_GENERATE_EXPECTED 1
-//#define TEST_RMQR_ENCODE_GENERATE_EXPECTED 1
+static void test_qr_options(int index, int debug) {
 
-static void test_qr_options(void)
-{
     testStart("");
 
     int ret;
     struct item {
-        unsigned char* data;
+        unsigned char *data;
         int option_1;
         int option_2;
         int ret_encode;
@@ -92,6 +77,8 @@ static void test_qr_options(void)
         /* 27*/ { "貫やぐ識禁ぱい再2間変字全ノレ没無8裁花ほゃ過法ひなご札17能つーびれ投覧マ勝動エヨ額界よみ作皇ナヲニ打題ヌルヲ掲布益フが。入35能ト権話しこを断兆モヘ細情おじ名4減エヘイハ側機はょが意見想ハ業独案ユヲウ患職ヲ平美さ毎放どぽたけ家没べお化富べ町大シ情魚ッでれ一冬すぼめり。社ト可化モマ試音ばじご育青康演ぴぎ権型固スで能麩ぜらもほ河都しちほラ収90作の年要とだむ部動ま者断チ第41一1米索焦茂げむしれ。測フ物使だて目月国スリカハ夏検にいへ児72告物ゆは載核ロアメヱ登輸どべゃ催行アフエハ議歌ワ河倫剖だ。記タケウ因載ヒイホヤ禁3輩彦関トえび肝区勝ワリロ成禁ぼよ界白ウヒキレ中島べせぜい各安うしぽリ覧生テ基一でむしゃ中新トヒキソ声碁スしび起田ア信大未ゅもばち。", 1, 22, 0, 0, 105, 0 },
         /* 28*/ { "貫やぐ識禁ぱい再2間変字全ノレ没無8裁花ほゃ過法ひなご札17能つーびれ投覧マ勝動エヨ額界よみ作皇ナヲニ打題ヌルヲ掲布益フが。入35能ト権話しこを断兆モヘ細情おじ名4減エヘイハ側機はょが意見想ハ業独案ユヲウ患職ヲ平美さ毎放どぽたけ家没べお化富べ町大シ情魚ッでれ一冬すぼめり。社ト可化モマ試音ばじご育青康演ぴぎ権型固スで能麩ぜらもほ河都しちほラ収90作の年要とだむ部動ま者断チ第41一1米索焦茂げむしれ。測フ物使だて目月国スリカハ夏検にいへ児72告物ゆは載核ロアメヱ登輸どべゃ催行アフエハ議歌ワ河倫剖だ。記タケウ因載ヒイホヤ禁3輩彦関トえび肝区勝ワリロ成禁ぼよ界白ウヒキレ中島べせぜい各安うしぽリ覧生テ基一でむしゃ中新トヒキソ声碁スしび起田ア信大未ゅもばち。", 4, -1, 0, 0, 153, 1 }, // ECC 4, version auto-set 34
         /* 29*/ { "貫やぐ識禁ぱい再2間変字全ノレ没無8裁花ほゃ過法ひなご札17能つーびれ投覧マ勝動エヨ額界よみ作皇ナヲニ打題ヌルヲ掲布益フが。入35能ト権話しこを断兆モヘ細情おじ名4減エヘイハ側機はょが意見想ハ業独案ユヲウ患職ヲ平美さ毎放どぽたけ家没べお化富べ町大シ情魚ッでれ一冬すぼめり。社ト可化モマ試音ばじご育青康演ぴぎ権型固スで能麩ぜらもほ河都しちほラ収90作の年要とだむ部動ま者断チ第41一1米索焦茂げむしれ。測フ物使だて目月国スリカハ夏検にいへ児72告物ゆは載核ロアメヱ登輸どべゃ催行アフエハ議歌ワ河倫剖だ。記タケウ因載ヒイホヤ禁3輩彦関トえび肝区勝ワリロ成禁ぼよ界白ウヒキレ中島べせぜい各安うしぽリ覧生テ基一でむしゃ中新トヒキソ声碁スしび起田ア信大未ゅもばち。", 4, 34, 0, 0, 153, 0 },
+        /* 30*/ { "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", 4, -1, 0, 0, 177, -1 }, // 1852 alphanumerics max for ECC 4 (H)
+        /* 31*/ { "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", 1, -1, 0, 0, 177, -1 }, // 4296 alphanumerics max for ECC 1 (L)
     };
     int data_size = sizeof(data) / sizeof(struct item);
 
@@ -99,7 +86,9 @@ static void test_qr_options(void)
 
     for (int i = 0; i < data_size; i++) {
 
-        struct zint_symbol* symbol = ZBarcode_Create();
+        if (index != -1 && i != index) continue;
+
+        struct zint_symbol *symbol = ZBarcode_Create();
         assert_nonnull(symbol, "Symbol not created\n");
 
         symbol->symbology = BARCODE_QRCODE;
@@ -109,11 +98,13 @@ static void test_qr_options(void)
         if (data[i].option_2 != -1) {
             symbol->option_2 = data[i].option_2;
         }
+        symbol->debug |= debug;
+
         int length = strlen(data[i].data);
 
         ret = ZBarcode_Encode(symbol, data[i].data, length);
         assert_equal(ret, data[i].ret_encode, "i:%d ZBarcode_Encode ret %d != %d (%s)\n", i, ret, data[i].ret_encode, symbol->errtxt);
-        if (data[i].compare_previous != -1) {
+        if (index == -1 && data[i].compare_previous != -1) {
             ret = testUtilSymbolCmp(symbol, &previous_symbol);
             assert_equal(!ret, !data[i].compare_previous, "i:%d testUtilSymbolCmp !ret %d != %d\n", i, ret, data[i].compare_previous);
         }
@@ -132,19 +123,20 @@ static void test_qr_options(void)
     testFinish();
 }
 
-static void test_qr_input(void)
-{
+static void test_qr_input(int index, int generate, int debug) {
+
     testStart("");
 
     int ret;
     struct item {
         int input_mode;
         int eci;
-        unsigned char* data;
+        int option_3;
+        unsigned char *data;
         int ret;
         int expected_eci;
-        char* expected;
-        char* comment;
+        char *expected;
+        char *comment;
     };
     // é U+00E9 in ISO 8859-1 plus other ISO 8859 (but not in ISO 8859-7 or ISO 8859-11), Win 1250 plus other Win, not in Shift JIS, UTF-8 C3A9
     // β U+03B2 in ISO 8859-7 Greek (but not other ISO 8859 or Win page), in Shift JIS 0x83C0, UTF-8 CEB2
@@ -159,84 +151,97 @@ static void test_qr_input(void)
     // 点 U+70B9 kanji, in Shift JIS 0x935F (\223\137), UTF-8 E782B9
     // 茗 U+8317 kanji, in Shift JIS 0xE4AA (\344\252), UTF-8 E88C97
     // テ U+30C6 katakana, in Shift JIS 0x8365 (\203\145), UTF-8 E38386
+    // Á U+00C1, UTF-8 C381; ȁ U+0201, UTF-8 C881; Ȃ U+0202, UTF-8 C882; ¢ U+00A2, UTF-8 C2A2; á U+00E1, UTF-8 C3A1
     struct item data[] = {
-        /*  0*/ { UNICODE_MODE, 0, "é", 0, 0, "40 1E 90 EC 11 EC 11 EC 11", "B1 (ISO 8859-1)" },
-        /*  1*/ { UNICODE_MODE, 3, "é", 0, 3, "70 34 01 E9 00 EC 11 EC 11", "ECI-3 B1 (ISO 8859-1)" },
-        /*  2*/ { UNICODE_MODE, 20, "é", ZINT_ERROR_INVALID_DATA, -1, "Error 800: Invalid character in input data", "é not in Shift JIS" },
-        /*  3*/ { UNICODE_MODE, 26, "é", 0, 26, "71 A4 02 C3 A9 00 EC 11 EC", "ECI-26 B2 (UTF-8)" },
-        /*  4*/ { DATA_MODE, 0, "é", 0, 0, "40 2C 3A 90 EC 11 EC 11 EC", "B2 (UTF-8)" },
-        /*  5*/ { DATA_MODE, 0, "\351", 0, 0, "40 1E 90 EC 11 EC 11 EC 11", "B1 (ISO 8859-1)" },
-        /*  6*/ { UNICODE_MODE, 0, "β", 0, 0, "80 11 00 00 EC 11 EC 11 EC", "K1 (Shift JIS)" },
-        /*  7*/ { UNICODE_MODE, 9, "β", 0, 9, "70 94 01 E2 00 EC 11 EC 11", "ECI-9 B1 (ISO 8859-7)" },
-        /*  8*/ { UNICODE_MODE, 20, "β", 0, 20, "71 48 01 10 00 00 EC 11 EC", "ECI-20 K1 (Shift JIS)" },
-        /*  9*/ { UNICODE_MODE, 26, "β", 0, 26, "71 A4 02 CE B2 00 EC 11 EC", "ECI-26 B2 (UTF-8)" },
-        /* 10*/ { DATA_MODE, 0, "β", 0, 0, "40 2C EB 20 EC 11 EC 11 EC", "B2 (UTF-8)" },
-        /* 11*/ { UNICODE_MODE, 0, "ก", ZINT_WARN_USES_ECI, 13, "Warning 70 D4 01 A1 00 EC 11 EC 11", "ECI-13 B1 (ISO 8859-11)" },
-        /* 12*/ { UNICODE_MODE, 13, "ก", 0, 13, "70 D4 01 A1 00 EC 11 EC 11", "ECI-13 B1 (ISO 8859-11)" },
-        /* 13*/ { UNICODE_MODE, 20, "ก", ZINT_ERROR_INVALID_DATA, -1, "Error 800: Invalid character in input data", "ก not in Shift JIS" },
-        /* 14*/ { UNICODE_MODE, 26, "ก", 0, 26, "71 A4 03 E0 B8 81 00 EC 11", "ECI-26 B3 (UTF-8)" },
-        /* 15*/ { DATA_MODE, 0, "ก", 0, 0, "40 3E 0B 88 10 EC 11 EC 11", "B3 (UTF-8)" },
-        /* 16*/ { UNICODE_MODE, 0, "Ж", 0, 0, "80 11 23 80 EC 11 EC 11 EC", "K1 (Shift JIS)" },
-        /* 17*/ { UNICODE_MODE, 7, "Ж", 0, 7, "70 74 01 B6 00 EC 11 EC 11", "ECI-7 B1 (ISO 8859-5)" },
-        /* 18*/ { UNICODE_MODE, 20, "Ж", 0, 20, "71 48 01 12 38 00 EC 11 EC", "ECI-20 K1 (Shift JIS)" },
-        /* 19*/ { UNICODE_MODE, 26, "Ж", 0, 26, "71 A4 02 D0 96 00 EC 11 EC", "ECI-26 B2 (UTF-8)" },
-        /* 20*/ { DATA_MODE, 0, "Ж", 0, 0, "40 2D 09 60 EC 11 EC 11 EC", "B2 (UTF-8)" },
-        /* 21*/ { UNICODE_MODE, 0, "ກ", ZINT_WARN_USES_ECI, 26, "Warning 71 A4 03 E0 BA 81 00 EC 11", "ECI-26 B3 (UTF-8)" },
-        /* 22*/ { UNICODE_MODE, 20, "ກ", ZINT_ERROR_INVALID_DATA, -1, "Error 800: Invalid character in input data", "ກ not in Shift JIS" },
-        /* 23*/ { UNICODE_MODE, 26, "ກ", 0, 26, "71 A4 03 E0 BA 81 00 EC 11", "ECI-26 B3 (UTF-8)" },
-        /* 24*/ { DATA_MODE, 0, "ກ", 0, 0, "40 3E 0B A8 10 EC 11 EC 11", "B3 (UTF-8)" },
-        /* 25*/ { UNICODE_MODE, 0, "\\", 0, 0, "40 15 C0 EC 11 EC 11 EC 11", "B1 (ASCII)" },
-        /* 26*/ { UNICODE_MODE, 20, "\\", 0, 20, "71 48 01 00 F8 00 EC 11 EC", "ECI-20 K1 (Shift JIS)" },
-        /* 27*/ { UNICODE_MODE, 20, "[", 0, 20, "71 44 01 5B 00 EC 11 EC 11", "B1 (ASCII)" },
-        /* 28*/ { UNICODE_MODE, 20, "\177", 0, 20, "71 44 01 7F 00 EC 11 EC 11", "ECI-20 B1 (ASCII)" },
-        /* 29*/ { UNICODE_MODE, 0, "¥", 0, 0, "40 1A 50 EC 11 EC 11 EC 11", "B1 (ISO 8859-1) (same bytes as ･ Shift JIS below, so ambiguous)" },
-        /* 30*/ { UNICODE_MODE, 3, "¥", 0, 3, "70 34 01 A5 00 EC 11 EC 11", "ECI-3 B1 (ISO 8859-1)" },
-        /* 31*/ { UNICODE_MODE, 20, "¥", 0, 20, "71 44 01 5C 00 EC 11 EC 11", "ECI-20 B1 (Shift JIS) (to single-byte backslash codepoint 5C, so byte mode)" },
-        /* 32*/ { UNICODE_MODE, 26, "¥", 0, 26, "71 A4 02 C2 A5 00 EC 11 EC", "ECI-26 B2 (UTF-8)" },
-        /* 33*/ { DATA_MODE, 0, "¥", 0, 0, "40 2C 2A 50 EC 11 EC 11 EC", "B2 (UTF-8)" },
-        /* 34*/ { UNICODE_MODE, 0, "･", 0, 0, "40 1A 50 EC 11 EC 11 EC 11", "B1 (Shift JIS) single-byte codepoint A5 (same bytes as ¥ ISO 8859-1 above, so ambiguous)" },
-        /* 35*/ { UNICODE_MODE, 3, "･", ZINT_ERROR_INVALID_DATA, -1, "Error 575: Invalid characters in input data", "" },
-        /* 36*/ { UNICODE_MODE, 20, "･", 0, 20, "71 44 01 A5 00 EC 11 EC 11", "ECI-20 B1 (Shift JIS) single-byte codepoint A5" },
-        /* 37*/ { UNICODE_MODE, 26, "･", 0, 26, "71 A4 03 EF BD A5 00 EC 11", "ECI-26 B3 (UTF-8)" },
-        /* 38*/ { DATA_MODE, 0, "･", 0, 0, "40 3E FB DA 50 EC 11 EC 11", "B3 (UTF-8)" },
-        /* 39*/ { UNICODE_MODE, 0, "¿", 0, 0, "40 1B F0 EC 11 EC 11 EC 11", "B1 (ISO 8859-1) (same bytes as ｿ Shift JIS below, so ambiguous)" },
-        /* 40*/ { UNICODE_MODE, 3, "¿", 0, 3, "70 34 01 BF 00 EC 11 EC 11", "ECI-3 B1 (ISO 8859-1)" },
-        /* 41*/ { UNICODE_MODE, 20, "¿", ZINT_ERROR_INVALID_DATA, -1, "Error 800: Invalid character in input data", "¿ not in Shift JIS" },
-        /* 42*/ { UNICODE_MODE, 26, "¿", 0, 26, "71 A4 02 C2 BF 00 EC 11 EC", "ECI-26 B2 (UTF-8)" },
-        /* 43*/ { DATA_MODE, 0, "¿", 0, 0, "40 2C 2B F0 EC 11 EC 11 EC", "B2 (UTF-8)" },
-        /* 44*/ { UNICODE_MODE, 0, "ｿ", 0, 0, "40 1B F0 EC 11 EC 11 EC 11", "B1 (Shift JIS) single-byte codepoint BF (same bytes as ¿ ISO 8859-1 above, so ambiguous)" },
-        /* 45*/ { UNICODE_MODE, 3, "ｿ", ZINT_ERROR_INVALID_DATA, -1, "Error 575: Invalid characters in input data", "" },
-        /* 46*/ { UNICODE_MODE, 20, "ｿ", 0, 20, "71 44 01 BF 00 EC 11 EC 11", "ECI-20 B1 (Shift JIS) single-byte codepoint BF" },
-        /* 47*/ { UNICODE_MODE, 26, "ｿ", 0, 26, "71 A4 03 EF BD BF 00 EC 11", "ECI-26 B3 (UTF-8)" },
-        /* 48*/ { DATA_MODE, 0, "ｿ", 0, 0, "40 3E FB DB F0 EC 11 EC 11", "B3 (UTF-8)" },
-        /* 49*/ { UNICODE_MODE, 0, "~", 0, 0, "40 17 E0 EC 11 EC 11 EC 11", "B1 (ASCII) (same bytes as ‾ Shift JIS below, so ambiguous)" },
-        /* 50*/ { UNICODE_MODE, 3, "~", 0, 3, "70 34 01 7E 00 EC 11 EC 11", "ECI-3 B1 (ASCII)" },
-        /* 51*/ { UNICODE_MODE, 20, "~", ZINT_ERROR_INVALID_DATA, -1, "Error 800: Invalid character in input data", "tilde not in Shift JIS (codepoint used for overline)" },
-        /* 52*/ { UNICODE_MODE, 0, "‾", 0, 0, "40 17 E0 EC 11 EC 11 EC 11", "B1 (Shift JIS) single-byte codepoint 7E (same bytes as ~ ASCII above, so ambiguous)" },
-        /* 53*/ { UNICODE_MODE, 3, "‾", ZINT_ERROR_INVALID_DATA, -1, "Error 575: Invalid characters in input data", "" },
-        /* 54*/ { UNICODE_MODE, 20, "‾", 0, 20, "71 44 01 7E 00 EC 11 EC 11", "ECI-20 B1 (Shift JIS) (to single-byte tilde codepoint 7E, so byte mode)" },
-        /* 55*/ { UNICODE_MODE, 26, "‾", 0, 26, "71 A4 03 E2 80 BE 00 EC 11", "ECI-26 B3 (UTF-8)" },
-        /* 56*/ { DATA_MODE, 0, "‾", 0, 0, "40 3E 28 0B E0 EC 11 EC 11", "B3 (UTF-8)" },
-        /* 57*/ { UNICODE_MODE, 0, "点", 0, 0, "80 16 CF 80 EC 11 EC 11 EC", "K1 (Shift JIS)" },
-        /* 58*/ { UNICODE_MODE, 3, "点", ZINT_ERROR_INVALID_DATA, -1, "Error 575: Invalid characters in input data", "" },
-        /* 59*/ { UNICODE_MODE, 20, "点", 0, 20, "71 48 01 6C F8 00 EC 11 EC", "ECI-20 K1 (Shift JIS)" },
-        /* 60*/ { UNICODE_MODE, 26, "点", 0, 26, "71 A4 03 E7 82 B9 00 EC 11", "ECI-26 B3 (UTF-8)" },
-        /* 61*/ { DATA_MODE, 0, "点", 0, 0, "40 3E 78 2B 90 EC 11 EC 11", "B3 (UTF-8)" },
-        /* 62*/ { DATA_MODE, 0, "\223\137", 0, 0, "80 16 CF 80 EC 11 EC 11 EC", "K1 (Shift JIS)" },
-        /* 63*/ { UNICODE_MODE, 0, "¥･点", 0, 0, "40 45 CA 59 35 F0 EC 11 EC", "B4 (Shift JIS) (optimized to byte mode only)" },
-        /* 64*/ { UNICODE_MODE, 3, "¥･点", ZINT_ERROR_INVALID_DATA, -1, "Error 575: Invalid characters in input data", "" },
-        /* 65*/ { UNICODE_MODE, 20, "¥･点", 0, 20, "71 44 04 5C A5 93 5F 00 EC", "ECI-20 B4 (Shift JIS)" },
-        /* 66*/ { UNICODE_MODE, 26, "¥･点", 0, 26, "71 A4 08 C2 A5 EF BD A5 E7 82 B9 00 EC", "ECI-26 B8 (UTF-8)" },
-        /* 67*/ { DATA_MODE, 0, "\134\245\223\137", 0, 0, "40 45 CA 59 35 F0 EC 11 EC", "B8 (Shift JIS)" },
-        /* 68*/ { DATA_MODE, 0, "¥･点", 0, 0, "40 8C 2A 5E FB DA 5E 78 2B 90 EC 11 EC", "B8 (UTF-8)" },
-        /* 69*/ { UNICODE_MODE, 0, "点茗", 0, 0, "80 26 CF EA A8 00 EC 11 EC", "K2 (Shift JIS)" },
-        /* 70*/ { UNICODE_MODE, 0, "点茗テ", 0, 0, "80 36 CF EA A8 34 A0 EC 11", "K3 (Shift JIS)" },
-        /* 71*/ { UNICODE_MODE, 0, "点茗テ点", 0, 0, "80 46 CF EA A8 34 AD 9F 00", "K4 (Shift JIS)" },
-        /* 72*/ { UNICODE_MODE, 0, "点茗テ点茗", 0, 0, "80 56 CF EA A8 34 AD 9F D5 50 00 EC 11", "K5 (Shift JIS)" },
-        /* 73*/ { UNICODE_MODE, 0, "点茗テ点茗テ", 0, 0, "80 66 CF EA A8 34 AD 9F D5 50 69 40 EC", "K6 (Shift JIS)" },
-        /* 74*/ { UNICODE_MODE, 0, "点茗テ点茗テｿ", 0, 0, "80 66 CF EA A8 34 AD 9F D5 50 69 50 06 FC 00 EC", "K6 B1 (Shift JIS)" },
-        /* 75*/ { DATA_MODE, 0, "\223\137\344\252\203\145\223\137\344\252\203\145\277", 0, 0, "80 66 CF EA A8 34 AD 9F D5 50 69 50 06 FC 00 EC", "K6 B1 (Shift JIS)" },
-        /* 76*/ { DATA_MODE, 0, "点茗テ点茗テｿ", 0, 0, "41 5E 78 2B 9E 88 C9 7E 38 38 6E 78 2B 9E 88 C9 7E 38 38 6E FB DB F0 EC 11 EC 11 EC", "B21 (UTF-8)" },
+        /*  0*/ { UNICODE_MODE, 0, -1, "é", 0, 0, "40 1E 90 EC 11 EC 11 EC 11", "B1 (ISO 8859-1)" },
+        /*  1*/ { UNICODE_MODE, 3, -1, "é", 0, 3, "70 34 01 E9 00 EC 11 EC 11", "ECI-3 B1 (ISO 8859-1)" },
+        /*  2*/ { UNICODE_MODE, 20, -1, "é", ZINT_ERROR_INVALID_DATA, -1, "Error 800: Invalid character in input data", "é not in Shift JIS" },
+        /*  3*/ { UNICODE_MODE, 26, -1, "é", 0, 26, "71 A4 02 C3 A9 00 EC 11 EC", "ECI-26 B2 (UTF-8)" },
+        /*  4*/ { DATA_MODE, 0, -1, "é", 0, 0, "40 2C 3A 90 EC 11 EC 11 EC", "B2 (UTF-8)" },
+        /*  5*/ { DATA_MODE, 0, -1, "\351", 0, 0, "40 1E 90 EC 11 EC 11 EC 11", "B1 (ISO 8859-1)" },
+        /*  6*/ { UNICODE_MODE, 0, -1, "β", 0, 0, "80 11 00 00 EC 11 EC 11 EC", "K1 (Shift JIS)" },
+        /*  7*/ { UNICODE_MODE, 9, -1, "β", 0, 9, "70 94 01 E2 00 EC 11 EC 11", "ECI-9 B1 (ISO 8859-7)" },
+        /*  8*/ { UNICODE_MODE, 20, -1, "β", 0, 20, "71 48 01 10 00 00 EC 11 EC", "ECI-20 K1 (Shift JIS)" },
+        /*  9*/ { UNICODE_MODE, 26, -1, "β", 0, 26, "71 A4 02 CE B2 00 EC 11 EC", "ECI-26 B2 (UTF-8)" },
+        /* 10*/ { DATA_MODE, 0, -1, "β", 0, 0, "40 2C EB 20 EC 11 EC 11 EC", "B2 (UTF-8)" },
+        /* 11*/ { UNICODE_MODE, 0, -1, "ก", ZINT_WARN_USES_ECI, 13, "Warning 70 D4 01 A1 00 EC 11 EC 11", "ECI-13 B1 (ISO 8859-11)" },
+        /* 12*/ { UNICODE_MODE, 13, -1, "ก", 0, 13, "70 D4 01 A1 00 EC 11 EC 11", "ECI-13 B1 (ISO 8859-11)" },
+        /* 13*/ { UNICODE_MODE, 20, -1, "ก", ZINT_ERROR_INVALID_DATA, -1, "Error 800: Invalid character in input data", "ก not in Shift JIS" },
+        /* 14*/ { UNICODE_MODE, 26, -1, "ก", 0, 26, "71 A4 03 E0 B8 81 00 EC 11", "ECI-26 B3 (UTF-8)" },
+        /* 15*/ { DATA_MODE, 0, -1, "ก", 0, 0, "40 3E 0B 88 10 EC 11 EC 11", "B3 (UTF-8)" },
+        /* 16*/ { UNICODE_MODE, 0, -1, "Ж", 0, 0, "80 11 23 80 EC 11 EC 11 EC", "K1 (Shift JIS)" },
+        /* 17*/ { UNICODE_MODE, 7, -1, "Ж", 0, 7, "70 74 01 B6 00 EC 11 EC 11", "ECI-7 B1 (ISO 8859-5)" },
+        /* 18*/ { UNICODE_MODE, 20, -1, "Ж", 0, 20, "71 48 01 12 38 00 EC 11 EC", "ECI-20 K1 (Shift JIS)" },
+        /* 19*/ { UNICODE_MODE, 26, -1, "Ж", 0, 26, "71 A4 02 D0 96 00 EC 11 EC", "ECI-26 B2 (UTF-8)" },
+        /* 20*/ { DATA_MODE, 0, -1, "Ж", 0, 0, "40 2D 09 60 EC 11 EC 11 EC", "B2 (UTF-8)" },
+        /* 21*/ { UNICODE_MODE, 0, -1, "ກ", ZINT_WARN_USES_ECI, 26, "Warning 71 A4 03 E0 BA 81 00 EC 11", "ECI-26 B3 (UTF-8)" },
+        /* 22*/ { UNICODE_MODE, 20, -1, "ກ", ZINT_ERROR_INVALID_DATA, -1, "Error 800: Invalid character in input data", "ກ not in Shift JIS" },
+        /* 23*/ { UNICODE_MODE, 26, -1, "ກ", 0, 26, "71 A4 03 E0 BA 81 00 EC 11", "ECI-26 B3 (UTF-8)" },
+        /* 24*/ { DATA_MODE, 0, -1, "ກ", 0, 0, "40 3E 0B A8 10 EC 11 EC 11", "B3 (UTF-8)" },
+        /* 25*/ { UNICODE_MODE, 0, -1, "\\", 0, 0, "40 15 C0 EC 11 EC 11 EC 11", "B1 (ASCII)" },
+        /* 26*/ { UNICODE_MODE, 20, -1, "\\", 0, 20, "71 48 01 00 F8 00 EC 11 EC", "ECI-20 K1 (Shift JIS)" },
+        /* 27*/ { UNICODE_MODE, 20, -1, "[", 0, 20, "71 44 01 5B 00 EC 11 EC 11", "B1 (ASCII)" },
+        /* 28*/ { UNICODE_MODE, 20, -1, "\177", 0, 20, "71 44 01 7F 00 EC 11 EC 11", "ECI-20 B1 (ASCII)" },
+        /* 29*/ { UNICODE_MODE, 0, -1, "¥", 0, 0, "40 1A 50 EC 11 EC 11 EC 11", "B1 (ISO 8859-1) (same bytes as ･ Shift JIS below, so ambiguous)" },
+        /* 30*/ { UNICODE_MODE, 3, -1, "¥", 0, 3, "70 34 01 A5 00 EC 11 EC 11", "ECI-3 B1 (ISO 8859-1)" },
+        /* 31*/ { UNICODE_MODE, 20, -1, "¥", 0, 20, "71 44 01 5C 00 EC 11 EC 11", "ECI-20 B1 (Shift JIS) (to single-byte backslash codepoint 5C, so byte mode)" },
+        /* 32*/ { UNICODE_MODE, 26, -1, "¥", 0, 26, "71 A4 02 C2 A5 00 EC 11 EC", "ECI-26 B2 (UTF-8)" },
+        /* 33*/ { DATA_MODE, 0, -1, "¥", 0, 0, "40 2C 2A 50 EC 11 EC 11 EC", "B2 (UTF-8)" },
+        /* 34*/ { UNICODE_MODE, 0, -1, "･", 0, 0, "40 1A 50 EC 11 EC 11 EC 11", "B1 (Shift JIS) single-byte codepoint A5 (same bytes as ¥ ISO 8859-1 above, so ambiguous)" },
+        /* 35*/ { UNICODE_MODE, 3, -1, "･", ZINT_ERROR_INVALID_DATA, -1, "Error 575: Invalid characters in input data", "" },
+        /* 36*/ { UNICODE_MODE, 20, -1, "･", 0, 20, "71 44 01 A5 00 EC 11 EC 11", "ECI-20 B1 (Shift JIS) single-byte codepoint A5" },
+        /* 37*/ { UNICODE_MODE, 26, -1, "･", 0, 26, "71 A4 03 EF BD A5 00 EC 11", "ECI-26 B3 (UTF-8)" },
+        /* 38*/ { DATA_MODE, 0, -1, "･", 0, 0, "40 3E FB DA 50 EC 11 EC 11", "B3 (UTF-8)" },
+        /* 39*/ { UNICODE_MODE, 0, -1, "¿", 0, 0, "40 1B F0 EC 11 EC 11 EC 11", "B1 (ISO 8859-1) (same bytes as ｿ Shift JIS below, so ambiguous)" },
+        /* 40*/ { UNICODE_MODE, 3, -1, "¿", 0, 3, "70 34 01 BF 00 EC 11 EC 11", "ECI-3 B1 (ISO 8859-1)" },
+        /* 41*/ { UNICODE_MODE, 20, -1, "¿", ZINT_ERROR_INVALID_DATA, -1, "Error 800: Invalid character in input data", "¿ not in Shift JIS" },
+        /* 42*/ { UNICODE_MODE, 26, -1, "¿", 0, 26, "71 A4 02 C2 BF 00 EC 11 EC", "ECI-26 B2 (UTF-8)" },
+        /* 43*/ { DATA_MODE, 0, -1, "¿", 0, 0, "40 2C 2B F0 EC 11 EC 11 EC", "B2 (UTF-8)" },
+        /* 44*/ { UNICODE_MODE, 0, -1, "ｿ", 0, 0, "40 1B F0 EC 11 EC 11 EC 11", "B1 (Shift JIS) single-byte codepoint BF (same bytes as ¿ ISO 8859-1 above, so ambiguous)" },
+        /* 45*/ { UNICODE_MODE, 3, -1, "ｿ", ZINT_ERROR_INVALID_DATA, -1, "Error 575: Invalid characters in input data", "" },
+        /* 46*/ { UNICODE_MODE, 20, -1, "ｿ", 0, 20, "71 44 01 BF 00 EC 11 EC 11", "ECI-20 B1 (Shift JIS) single-byte codepoint BF" },
+        /* 47*/ { UNICODE_MODE, 26, -1, "ｿ", 0, 26, "71 A4 03 EF BD BF 00 EC 11", "ECI-26 B3 (UTF-8)" },
+        /* 48*/ { DATA_MODE, 0, -1, "ｿ", 0, 0, "40 3E FB DB F0 EC 11 EC 11", "B3 (UTF-8)" },
+        /* 49*/ { UNICODE_MODE, 0, -1, "~", 0, 0, "40 17 E0 EC 11 EC 11 EC 11", "B1 (ASCII) (same bytes as ‾ Shift JIS below, so ambiguous)" },
+        /* 50*/ { UNICODE_MODE, 3, -1, "~", 0, 3, "70 34 01 7E 00 EC 11 EC 11", "ECI-3 B1 (ASCII)" },
+        /* 51*/ { UNICODE_MODE, 20, -1, "~", ZINT_ERROR_INVALID_DATA, -1, "Error 800: Invalid character in input data", "tilde not in Shift JIS (codepoint used for overline)" },
+        /* 52*/ { UNICODE_MODE, 0, -1, "‾", 0, 0, "40 17 E0 EC 11 EC 11 EC 11", "B1 (Shift JIS) single-byte codepoint 7E (same bytes as ~ ASCII above, so ambiguous)" },
+        /* 53*/ { UNICODE_MODE, 3, -1, "‾", ZINT_ERROR_INVALID_DATA, -1, "Error 575: Invalid characters in input data", "" },
+        /* 54*/ { UNICODE_MODE, 20, -1, "‾", 0, 20, "71 44 01 7E 00 EC 11 EC 11", "ECI-20 B1 (Shift JIS) (to single-byte tilde codepoint 7E, so byte mode)" },
+        /* 55*/ { UNICODE_MODE, 26, -1, "‾", 0, 26, "71 A4 03 E2 80 BE 00 EC 11", "ECI-26 B3 (UTF-8)" },
+        /* 56*/ { DATA_MODE, 0, -1, "‾", 0, 0, "40 3E 28 0B E0 EC 11 EC 11", "B3 (UTF-8)" },
+        /* 57*/ { UNICODE_MODE, 0, -1, "点", 0, 0, "80 16 CF 80 EC 11 EC 11 EC", "K1 (Shift JIS)" },
+        /* 58*/ { UNICODE_MODE, 3, -1, "点", ZINT_ERROR_INVALID_DATA, -1, "Error 575: Invalid characters in input data", "" },
+        /* 59*/ { UNICODE_MODE, 20, -1, "点", 0, 20, "71 48 01 6C F8 00 EC 11 EC", "ECI-20 K1 (Shift JIS)" },
+        /* 60*/ { UNICODE_MODE, 26, -1, "点", 0, 26, "71 A4 03 E7 82 B9 00 EC 11", "ECI-26 B3 (UTF-8)" },
+        /* 61*/ { DATA_MODE, 0, -1, "点", 0, 0, "40 3E 78 2B 90 EC 11 EC 11", "B3 (UTF-8)" },
+        /* 62*/ { DATA_MODE, 0, -1, "\223\137", 0, 0, "40 29 35 F0 EC 11 EC 11 EC", "B2 (Shift JIS) (not full multibyte)" },
+        /* 63*/ { DATA_MODE, 0, 200, "\223\137", 0, 0, "80 16 CF 80 EC 11 EC 11 EC", "K1 (Shift JIS)" },
+        /* 64*/ { UNICODE_MODE, 0, -1, "¥･点", 0, 0, "40 45 CA 59 35 F0 EC 11 EC", "B4 (Shift JIS) (optimized to byte mode only)" },
+        /* 65*/ { UNICODE_MODE, 3, -1, "¥･点", ZINT_ERROR_INVALID_DATA, -1, "Error 575: Invalid characters in input data", "" },
+        /* 66*/ { UNICODE_MODE, 20, -1, "¥･点", 0, 20, "71 44 04 5C A5 93 5F 00 EC", "ECI-20 B4 (Shift JIS)" },
+        /* 67*/ { UNICODE_MODE, 26, -1, "¥･点", 0, 26, "71 A4 08 C2 A5 EF BD A5 E7 82 B9 00 EC", "ECI-26 B8 (UTF-8)" },
+        /* 68*/ { DATA_MODE, 0, -1, "\134\245\223\137", 0, 0, "40 45 CA 59 35 F0 EC 11 EC", "B8 (Shift JIS)" },
+        /* 69*/ { DATA_MODE, 0, -1, "¥･点", 0, 0, "40 8C 2A 5E FB DA 5E 78 2B 90 EC 11 EC", "B8 (UTF-8)" },
+        /* 70*/ { UNICODE_MODE, 0, -1, "点茗", 0, 0, "80 26 CF EA A8 00 EC 11 EC", "K2 (Shift JIS)" },
+        /* 71*/ { UNICODE_MODE, 0, -1, "点茗テ", 0, 0, "80 36 CF EA A8 34 A0 EC 11", "K3 (Shift JIS)" },
+        /* 72*/ { UNICODE_MODE, 0, -1, "点茗テ点", 0, 0, "80 46 CF EA A8 34 AD 9F 00", "K4 (Shift JIS)" },
+        /* 73*/ { UNICODE_MODE, 0, -1, "点茗テ点茗", 0, 0, "80 56 CF EA A8 34 AD 9F D5 50 00 EC 11", "K5 (Shift JIS)" },
+        /* 74*/ { UNICODE_MODE, 0, -1, "点茗テ点茗テ", 0, 0, "80 66 CF EA A8 34 AD 9F D5 50 69 40 EC", "K6 (Shift JIS)" },
+        /* 75*/ { UNICODE_MODE, 0, -1, "点茗テ点茗テｿ", 0, 0, "80 66 CF EA A8 34 AD 9F D5 50 69 50 06 FC 00 EC", "K6 B1 (Shift JIS)" },
+        /* 76*/ { DATA_MODE, 0, -1, "\223\137\344\252\203\145\223\137\344\252\203\145\277", 0, 0, "40 D9 35 FE 4A A8 36 59 35 FE 4A A8 36 5B F0 EC", "B13 (Shift JIS)" },
+        /* 77*/ { DATA_MODE, 0, 200, "\223\137\344\252\203\145\223\137\344\252\203\145\277", 0, 0, "80 66 CF EA A8 34 AD 9F D5 50 69 50 06 FC 00 EC", "K6 B1 (Shift JIS) (full multibyte)" },
+        /* 78*/ { DATA_MODE, 0, -1, "点茗テ点茗テｿ", 0, 0, "41 5E 78 2B 9E 88 C9 7E 38 38 6E 78 2B 9E 88 C9 7E 38 38 6E FB DB F0 EC 11 EC 11 EC", "B21 (UTF-8)" },
+        /* 79*/ { DATA_MODE, 0, -1, "ÁȁȁȁȁȁȁȂ¢", 0, 0, "41 2C 38 1C 88 1C 88 1C 88 1C 88 1C 88 1C 88 1C 88 2C 2A 20 EC 11", "B18 (UTF-8)" },
+        /* 80*/ { DATA_MODE, 0, 200, "ÁȁȁȁȁȁȁȂ¢", 0, 0, "41 2C 38 1C 88 1C 88 1C 88 1C 88 1C 88 1C 88 1C 88 2C 2A 20 EC 11", "B18 (UTF-8) (full multibyte)" },
+        /* 81*/ { DATA_MODE, 0, -1, "ÁȁȁȁȁȁȁȁȂ¢", 0, 0, "41 4C 38 1C 88 1C 88 1C 88 1C 88 1C 88 1C 88 1C 88 1C 88 2C 2A 20", "B20 (UTF-8)" },
+        /* 82*/ { DATA_MODE, 0, 200, "ÁȁȁȁȁȁȁȁȂ¢", 0, 0, "40 1C 38 09 04 40 22 01 10 08 80 44 02 20 11 00 88 0A 12 00 D1 00", "B1 K9 B1 (UTF-8) (full multibyte)" },
+        /* 83*/ { UNICODE_MODE, 0, -1, "ÁȁȁȁȁȁȁȂ¢", ZINT_WARN_USES_ECI, 26, "Warning 71 A4 12 C3 81 C8 81 C8 81 C8 81 C8 81 C8 81 C8 81 C8 82 C2 A2 00", "B18 (UTF-8)" },
+        /* 84*/ { UNICODE_MODE, 0, 200, "ÁȁȁȁȁȁȁȂ¢", ZINT_WARN_USES_ECI, 26, "Warning 71 A4 12 C3 81 C8 81 C8 81 C8 81 C8 81 C8 81 C8 81 C8 82 C2 A2 00", "B18 (UTF-8)" },
+        /* 85*/ { UNICODE_MODE, 0, -1, "ÁȁȁȁȁȁȁȁȂ¢", ZINT_WARN_USES_ECI, 26, "Warning 71 A4 14 C3 81 C8 81 C8 81 C8 81 C8 81 C8 81 C8 81 C8 81 C8 82 C2 A2 00 EC 11 EC 11", "B20 (UTF-8)" },
+        /* 86*/ { UNICODE_MODE, 0, 200, "ÁȁȁȁȁȁȁȁȂ¢", ZINT_WARN_USES_ECI, 26, "Warning 71 A4 01 C3 80 90 44 02 20 11 00 88 04 40 22 01 10 08 80 A1 20 0D 10 00 EC 11 EC 11", "B1 K9 B1 (UTF-8) (full multibyte)" },
+        /* 87*/ { UNICODE_MODE, 0, -1, "áA", 0, 0, "40 2E 14 10 EC 11 EC 11 EC", "B2 (ISO 8859-1)" },
+        /* 88*/ { UNICODE_MODE, 0, 200, "áA", 0, 0, "80 1C 00 80 EC 11 EC 11 EC", "K1 (ISO 8859-1) (full multibyte)" },
     };
     int data_size = sizeof(data) / sizeof(struct item);
 
@@ -244,30 +249,36 @@ static void test_qr_input(void)
 
     for (int i = 0; i < data_size; i++) {
 
-        struct zint_symbol* symbol = ZBarcode_Create();
+        if (index != -1 && i != index) continue;
+
+        struct zint_symbol *symbol = ZBarcode_Create();
         assert_nonnull(symbol, "Symbol not created\n");
 
         symbol->symbology = BARCODE_QRCODE;
         symbol->input_mode = data[i].input_mode;
         symbol->eci = data[i].eci;
+        if (data[i].option_3 != -1) {
+            symbol->option_3 = data[i].option_3;
+        }
         symbol->debug = ZINT_DEBUG_TEST; // Needed to get codeword dump in errtxt
+        symbol->debug |= debug;
 
         int length = strlen(data[i].data);
 
         ret = ZBarcode_Encode(symbol, data[i].data, length);
         assert_equal(ret, data[i].ret, "i:%d ZBarcode_Encode ret %d != %d\n", i, ret, data[i].ret);
 
-        #ifdef TEST_QR_INPUT_GENERATE_EXPECTED
-        printf("        /*%3d*/ { %s, %d, \"%s\", %s, %d, \"%s\", \"%s\" },\n",
-                i, testUtilInputModeName(data[i].input_mode), data[i].eci, testUtilEscape(data[i].data, length, escaped, sizeof(escaped)), testUtilErrorName(data[i].ret),
-                ret < 5 ? symbol->eci : -1, symbol->errtxt, data[i].comment);
-        #else
-        if (ret < 5) {
+        if (generate) {
+            printf("        /*%3d*/ { %s, %d, %d, \"%s\", %s, %d, \"%s\", \"%s\" },\n",
+                    i, testUtilInputModeName(data[i].input_mode), data[i].eci, data[i].option_3, testUtilEscape(data[i].data, length, escaped, sizeof(escaped)),
+                    testUtilErrorName(data[i].ret), ret < 5 ? symbol->eci : -1, symbol->errtxt, data[i].comment);
+        } else {
+            if (ret < 5) {
 
-            assert_equal(symbol->eci, data[i].expected_eci, "i:%d eci %d != %d\n", i, symbol->eci, data[i].expected_eci);
-            assert_zero(strcmp(symbol->errtxt, data[i].expected), "i:%d strcmp(%s, %s) != 0\n", i, symbol->errtxt, data[i].expected);
+                assert_equal(symbol->eci, data[i].expected_eci, "i:%d eci %d != %d\n", i, symbol->eci, data[i].expected_eci);
+                assert_zero(strcmp(symbol->errtxt, data[i].expected), "i:%d strcmp(%s, %s) != 0\n", i, symbol->errtxt, data[i].expected);
+            }
         }
-        #endif
 
         ZBarcode_Delete(symbol);
     }
@@ -275,16 +286,16 @@ static void test_qr_input(void)
     testFinish();
 }
 
-static void test_qr_gs1(void)
-{
+static void test_qr_gs1(int index, int generate, int debug) {
+
     testStart("");
 
     int ret;
     struct item {
-        unsigned char* data;
+        unsigned char *data;
         int ret;
-        char* expected;
-        char* comment;
+        char *expected;
+        char *comment;
     };
     struct item data[] = {
         /*  0*/ { "[01]12345678901234", 0, "51 04 00 B3 AA 37 DE 87 B4", "N16" },
@@ -304,27 +315,29 @@ static void test_qr_gs1(void)
 
     for (int i = 0; i < data_size; i++) {
 
-        struct zint_symbol* symbol = ZBarcode_Create();
+        if (index != -1 && i != index) continue;
+
+        struct zint_symbol *symbol = ZBarcode_Create();
         assert_nonnull(symbol, "Symbol not created\n");
 
         symbol->symbology = BARCODE_QRCODE;
         symbol->input_mode = GS1_MODE;
         symbol->debug = ZINT_DEBUG_TEST; // Needed to get codeword dump in errtxt
+        symbol->debug |= debug;
 
         int length = strlen(data[i].data);
 
         ret = ZBarcode_Encode(symbol, data[i].data, length);
         assert_equal(ret, data[i].ret, "i:%d ZBarcode_Encode ret %d != %d\n", i, ret, data[i].ret);
 
-        #ifdef TEST_QR_GS1_GENERATE_EXPECTED
-        printf("        /*%3d*/ { \"%s\", %s, \"%s\", \"%s\" },\n",
-                i, testUtilEscape(data[i].data, length, escaped, sizeof(escaped)), testUtilErrorName(data[i].ret), symbol->errtxt, data[i].comment);
-        #else
-        if (ret < 5) {
-
-            assert_zero(strcmp(symbol->errtxt, data[i].expected), "i:%d strcmp(%s, %s) != 0\n", i, symbol->errtxt, data[i].expected);
+        if (generate) {
+            printf("        /*%3d*/ { \"%s\", %s, \"%s\", \"%s\" },\n",
+                    i, testUtilEscape(data[i].data, length, escaped, sizeof(escaped)), testUtilErrorName(data[i].ret), symbol->errtxt, data[i].comment);
+        } else {
+            if (ret < 5) {
+                assert_zero(strcmp(symbol->errtxt, data[i].expected), "i:%d strcmp(%s, %s) != 0\n", i, symbol->errtxt, data[i].expected);
+            }
         }
-        #endif
 
         ZBarcode_Delete(symbol);
     }
@@ -332,18 +345,18 @@ static void test_qr_gs1(void)
     testFinish();
 }
 
-static void test_qr_optimize(void)
-{
+static void test_qr_optimize(int index, int generate, int debug) {
+
     testStart("");
 
     int ret;
     struct item {
         int input_mode;
-        unsigned char* data;
+        unsigned char *data;
         int option_1;
         int ret;
-        char* expected;
-        char* comment;
+        char *expected;
+        char *comment;
     };
     struct item data[] = {
         /*  0*/ { UNICODE_MODE, "1", -1, 0, "10 04 40 EC 11 EC 11 EC 11", "N1" },
@@ -383,7 +396,9 @@ static void test_qr_optimize(void)
 
     for (int i = 0; i < data_size; i++) {
 
-        struct zint_symbol* symbol = ZBarcode_Create();
+        if (index != -1 && i != index) continue;
+
+        struct zint_symbol *symbol = ZBarcode_Create();
         assert_nonnull(symbol, "Symbol not created\n");
 
         symbol->symbology = BARCODE_QRCODE;
@@ -391,20 +406,22 @@ static void test_qr_optimize(void)
         if (data[i].option_1 != -1) {
             symbol->option_1 = data[i].option_1;
         }
+        symbol->option_3 = ZINT_FULL_MULTIBYTE;
         symbol->debug = ZINT_DEBUG_TEST;
+        symbol->debug |= debug;
 
         int length = strlen(data[i].data);
 
         ret = ZBarcode_Encode(symbol, data[i].data, length);
         assert_equal(ret, data[i].ret, "i:%d ZBarcode_Encode ret %d != %d\n", i, ret, data[i].ret);
 
-        #ifdef TEST_QR_OPTIMIZE_GENERATE_EXPECTED
-        printf("        /*%3d*/ { %s, \"%s\", %d, %s, \"%s\", \"%s\" },\n",
-                i, testUtilInputModeName(data[i].input_mode), testUtilEscape(data[i].data, length, escaped, sizeof(escaped)), data[i].option_1,
-                testUtilErrorName(data[i].ret), symbol->errtxt, data[i].comment);
-        #else
-        assert_zero(strcmp(symbol->errtxt, data[i].expected), "i:%d strcmp(%s, %s) != 0\n", i, symbol->errtxt, data[i].expected);
-        #endif
+        if (generate) {
+            printf("        /*%3d*/ { %s, \"%s\", %d, %s, \"%s\", \"%s\" },\n",
+                    i, testUtilInputModeName(data[i].input_mode), testUtilEscape(data[i].data, length, escaped, sizeof(escaped)), data[i].option_1,
+                    testUtilErrorName(data[i].ret), symbol->errtxt, data[i].comment);
+        } else {
+            assert_zero(strcmp(symbol->errtxt, data[i].expected), "i:%d strcmp(%s, %s) != 0\n", i, symbol->errtxt, data[i].expected);
+        }
 
         ZBarcode_Delete(symbol);
     }
@@ -412,22 +429,22 @@ static void test_qr_optimize(void)
     testFinish();
 }
 
-static void test_qr_encode(void)
-{
+static void test_qr_encode(int index, int generate, int debug) {
+
     testStart("");
 
     int ret;
     struct item {
         int input_mode;
-        unsigned char* data;
+        unsigned char *data;
         int option_1;
         int option_2;
         int ret;
 
         int expected_rows;
         int expected_width;
-        char* comment;
-        char* expected;
+        char *comment;
+        char *expected;
     };
     struct item data[] = {
         /*  0*/ { UNICODE_MODE, "01234567", 2, 1, 0, 21, 21, "ISO 18004 Annex I I.2 **NOT SAME** uses mask 000 not 010; if force to use 010, same",
@@ -453,7 +470,34 @@ static void test_qr_encode(void)
                     "100000100001110111000"
                     "111111101001011100101"
                },
-        /*  1*/ { UNICODE_MODE, "12345678901234567890123456789012345678901", -1, -1, 0, 21, 21, "Max capacity ECC 1 Version 1 41 numbers",
+        /*  1*/ { GS1_MODE, "[01]09501101530003[8200]http://example.com", -1, -1, 0, 25, 25, "GS1 General Specifications 20.0 Figure 5.1-7 **NOT SAME** TODO: investigate",
+                    "1111111001101101001111111"
+                    "1000001000110001101000001"
+                    "1011101011101000101011101"
+                    "1011101001100000101011101"
+                    "1011101000110111001011101"
+                    "1000001001011001101000001"
+                    "1111111010101010101111111"
+                    "0000000011100011000000000"
+                    "1110111110110000011000100"
+                    "0100110000101101111100111"
+                    "0111101101000111001011110"
+                    "0010110100000111010101111"
+                    "1110001000010010100010100"
+                    "0010110001010001000110010"
+                    "1001011110000111001100001"
+                    "0100110011000110001010110"
+                    "1011001000000100111110001"
+                    "0000000010001001100011000"
+                    "1111111010000111101010011"
+                    "1000001010110011100010010"
+                    "1011101011011011111110001"
+                    "1011101000100100100000000"
+                    "1011101010100110101110101"
+                    "1000001010100111110101000"
+                    "1111111011101100010010111"
+               },
+        /*  2*/ { UNICODE_MODE, "12345678901234567890123456789012345678901", -1, -1, 0, 21, 21, "Max capacity ECC 1 Version 1 41 numbers",
                     "111111100011001111111"
                     "100000100001001000001"
                     "101110101110001011101"
@@ -476,7 +520,7 @@ static void test_qr_encode(void)
                     "100000101010111011000"
                     "111111101000100010101"
                },
-        /*  2*/ { UNICODE_MODE, "12345678901234567890123456789012345678901", 2, -1, 0, 25, 25, "ECC 2 auto-sets version 2",
+        /*  3*/ { UNICODE_MODE, "12345678901234567890123456789012345678901", 2, -1, 0, 25, 25, "ECC 2 auto-sets version 2",
                     "1111111010111111001111111"
                     "1000001001001110001000001"
                     "1011101001000001101011101"
@@ -503,7 +547,7 @@ static void test_qr_encode(void)
                     "1000001001110101001011000"
                     "1111111011101101111101001"
                },
-        /*  3*/ { UNICODE_MODE, "点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点", 4, 10, 0, 57, 57, "Max capacity ECC 4 Version 10 74 kanji",
+        /*  4*/ { UNICODE_MODE, "点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点", 4, 10, 0, 57, 57, "Max capacity ECC 4 Version 10 74 kanji",
                     "111111101100111011000010011000100111001001000011001111111"
                     "100000101111111001101100110100110101110011011101001000001"
                     "101110101011001110000011101100101110111011110011001011101"
@@ -562,7 +606,7 @@ static void test_qr_encode(void)
                     "100000100010000001101111010001101010110110010001011111000"
                     "111111100000011111000100011011010011011001011011001011001"
                },
-        /*  4*/ { UNICODE_MODE, "点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点", 4, 27, 0, 125, 125, "Max capacity ECC 4 Version 27 385 kanji",
+        /*  5*/ { UNICODE_MODE, "点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点", 4, 27, 0, 125, 125, "Max capacity ECC 4 Version 27 385 kanji",
                     "11111110101001001100111100100011110001010011110000001100010110100011101010111000011101101001011111001111101101101001101111111"
                     "10000010110001101110011001101111000101001011011001100110101000101010011110000000101000100101101110110000011110100110001000001"
                     "10111010100000000100000101000101111001011001010100100100100000000101100011010001100111101010010101101101101101101101001011101"
@@ -689,7 +733,7 @@ static void test_qr_encode(void)
                     "10000010010111001111010001100001010001010110110001100000111101011100000010010111101001001100101101111011011001000001101001110"
                     "11111110000000010001110110000001010111011111000000111111010101110100101000110111000101101011001100000101101101101001100111111"
         },
-        /*  5*/ { UNICODE_MODE, "点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点", 4, 40, 0, 177, 177, "Max capacity ECC 4 Version 40 784 kanji",
+        /*  6*/ { UNICODE_MODE, "点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点点", 4, 40, 0, 177, 177, "Max capacity ECC 4 Version 40 784 kanji",
                     "111111101010001111111101101110111010110111001110101000010001011011011101001110110011111011010000010101001010011110010000010110111111001001011111101000010010111111001010001111111"
                     "100000101010110001001000101111011001001100100110110000000111110101111011110001101110000111000100101111010011001111100111111001001011011011110011011111111001000010010010101000001"
                     "101110101001001101111001110010010100000000111001001011111000001001111111101010000111011010011010010001111010111001100011000011110100101110001010110001011110011011011010001011101"
@@ -874,7 +918,9 @@ static void test_qr_encode(void)
 
     for (int i = 0; i < data_size; i++) {
 
-        struct zint_symbol* symbol = ZBarcode_Create();
+        if (index != -1 && i != index) continue;
+
+        struct zint_symbol *symbol = ZBarcode_Create();
         assert_nonnull(symbol, "Symbol not created\n");
 
         symbol->symbology = BARCODE_QRCODE;
@@ -885,30 +931,31 @@ static void test_qr_encode(void)
         if (data[i].option_2 != -1) {
             symbol->option_2 = data[i].option_2;
         }
+        symbol->debug |= debug;
 
         int length = strlen(data[i].data);
 
         ret = ZBarcode_Encode(symbol, data[i].data, length);
         assert_equal(ret, data[i].ret, "i:%d ZBarcode_Encode ret %d != %d (%s)\n", i, ret, data[i].ret, symbol->errtxt);
 
-        #ifdef TEST_QR_ENCODE_GENERATE_EXPECTED
-        printf("        /*%3d*/ { %s, \"%s\", %d, %d, %s, %d, %d, \"%s\",\n",
-                i, testUtilInputModeName(data[i].input_mode), data[i].data, data[i].option_1, data[i].option_2, testUtilErrorName(data[i].ret),
-                symbol->rows, symbol->width, data[i].comment);
-        testUtilModulesDump(symbol, "                    ", "\n");
-        printf("               },\n");
-        #else
-        if (ret < 5) {
-            assert_equal(symbol->rows, data[i].expected_rows, "i:%d symbol->rows %d != %d (%s)\n", i, symbol->rows, data[i].expected_rows, data[i].data);
-            assert_equal(symbol->width, data[i].expected_width, "i:%d symbol->width %d != %d (%s)\n", i, symbol->width, data[i].expected_width, data[i].data);
+        if (generate) {
+            printf("        /*%3d*/ { %s, \"%s\", %d, %d, %s, %d, %d, \"%s\",\n",
+                    i, testUtilInputModeName(data[i].input_mode), data[i].data, data[i].option_1, data[i].option_2, testUtilErrorName(data[i].ret),
+                    symbol->rows, symbol->width, data[i].comment);
+            testUtilModulesDump(symbol, "                    ", "\n");
+            printf("               },\n");
+        } else {
+            if (ret < 5) {
+                assert_equal(symbol->rows, data[i].expected_rows, "i:%d symbol->rows %d != %d (%s)\n", i, symbol->rows, data[i].expected_rows, data[i].data);
+                assert_equal(symbol->width, data[i].expected_width, "i:%d symbol->width %d != %d (%s)\n", i, symbol->width, data[i].expected_width, data[i].data);
 
-            if (ret == 0) {
-                int width, row;
-                ret = testUtilModulesCmp(symbol, data[i].expected, &width, &row);
-                assert_zero(ret, "i:%d testUtilModulesCmp ret %d != 0 width %d row %d (%s)\n", i, ret, width, row, data[i].data);
+                if (ret == 0) {
+                    int width, row;
+                    ret = testUtilModulesCmp(symbol, data[i].expected, &width, &row);
+                    assert_zero(ret, "i:%d testUtilModulesCmp ret %d != 0 width %d row %d (%s)\n", i, ret, width, row, data[i].data);
+                }
             }
         }
-        #endif
 
         ZBarcode_Delete(symbol);
     }
@@ -916,13 +963,13 @@ static void test_qr_encode(void)
     testFinish();
 }
 
-static void test_microqr_options(void)
-{
+static void test_microqr_options(int index, int debug) {
+
     testStart("");
 
     int ret;
     struct item {
-        unsigned char* data;
+        unsigned char *data;
         int option_1;
         int option_2;
         int ret_encode;
@@ -988,7 +1035,9 @@ static void test_microqr_options(void)
 
     for (int i = 0; i < data_size; i++) {
 
-        struct zint_symbol* symbol = ZBarcode_Create();
+        if (index != -1 && i != index) continue;
+
+        struct zint_symbol *symbol = ZBarcode_Create();
         assert_nonnull(symbol, "Symbol not created\n");
 
         symbol->symbology = BARCODE_MICROQR;
@@ -998,11 +1047,13 @@ static void test_microqr_options(void)
         if (data[i].option_2 != -1) {
             symbol->option_2 = data[i].option_2;
         }
+        symbol->debug |= debug;
+
         int length = strlen(data[i].data);
 
         ret = ZBarcode_Encode(symbol, data[i].data, length);
         assert_equal(ret, data[i].ret_encode, "i:%d ZBarcode_Encode ret %d != %d (%s)\n", i, ret, data[i].ret_encode, symbol->errtxt);
-        if (data[i].compare_previous != -1) {
+        if (index == -1 && data[i].compare_previous != -1) {
             ret = testUtilSymbolCmp(symbol, &previous_symbol);
             assert_equal(!ret, !data[i].compare_previous, "i:%d testUtilSymbolCmp !ret %d != %d\n", i, ret, data[i].compare_previous);
         }
@@ -1021,17 +1072,18 @@ static void test_microqr_options(void)
     testFinish();
 }
 
-static void test_microqr_input(void)
-{
+static void test_microqr_input(int index, int generate, int debug) {
+
     testStart("");
 
     int ret;
     struct item {
         int input_mode;
-        unsigned char* data;
+        int option_3;
+        unsigned char *data;
         int ret;
-        char* expected;
-        char* comment;
+        char *expected;
+        char *comment;
     };
     // é U+00E9 in ISO 8859-1 plus other ISO 8859 (but not in ISO 8859-7 or ISO 8859-11), Win 1250 plus other Win, not in Shift JIS, UTF-8 C3A9
     // β U+03B2 in ISO 8859-7 Greek (but not other ISO 8859 or Win page), in Shift JIS 0x83C0, UTF-8 CEB2
@@ -1045,38 +1097,49 @@ static void test_microqr_input(void)
     // ‾ U+203E overline, not in ISO/Win, in Shift JIS single-byte 0x7E (\176) (tilde), UTF-8 E280BE
     // 点 U+70B9 kanji, in Shift JIS 0x935F (\223\137), UTF-8 E782B9
     // 茗 U+8317 kanji, in Shift JIS 0xE4AA (\344\252), UTF-8 E88C97
+    // Á U+00C1, UTF-8 C381; ȁ U+0201, UTF-8 C881; Ȃ U+0202, UTF-8 C882; ¢ U+00A2, UTF-8 C2A2; á U+00E1, UTF-8 C3A1
     struct item data[] = {
-        /*  0*/ { UNICODE_MODE, "é", 0, "87 A4 00 EC 11 EC 11 EC 00", "B1 (ISO 8859-1)" },
-        /*  1*/ { DATA_MODE, "é", 0, "8B 0E A4 00 EC 11 EC 11 00", "B2 (UTF-8)" },
-        /*  2*/ { UNICODE_MODE, "β", 0, "C8 80 00 00 EC 11 EC 11 00", "K1 (Shift JIS)" },
-        /*  3*/ { UNICODE_MODE, "ก", ZINT_ERROR_INVALID_DATA, "Error 800: Invalid character in input data", "ก not in Shift JIS" },
-        /*  4*/ { UNICODE_MODE, "Ж", 0, "C8 91 C0 00 EC 11 EC 11 00", "K1 (Shift JIS)" },
-        /*  5*/ { UNICODE_MODE, "ກ", ZINT_ERROR_INVALID_DATA, "Error 800: Invalid character in input data", "ກ not in Shift JIS" },
-        /*  6*/ { UNICODE_MODE, "\\", 0, "85 70 00 EC 11 EC 11 EC 00", "B1 (ASCII)" },
-        /*  7*/ { UNICODE_MODE, "¥", 0, "86 94 00 EC 11 EC 11 EC 00", "B1 (ISO 8859-1) (same bytes as ･ Shift JIS below, so ambiguous)" },
-        /*  8*/ { UNICODE_MODE, "･", 0, "86 94 00 EC 11 EC 11 EC 00", "B1 (Shift JIS) single-byte codepoint A5 (same bytes as ¥ ISO 8859-1 above, so ambiguous)" },
-        /*  9*/ { UNICODE_MODE, "¿", 0, "86 FC 00 EC 11 EC 11 EC 00", "B1 (ISO 8859-1) (same bytes as ｿ Shift JIS below, so ambiguous)" },
-        /* 10*/ { UNICODE_MODE, "ｿ", 0, "86 FC 00 EC 11 EC 11 EC 00", "B1 (Shift JIS) (same bytes as ¿ ISO 8859-1 above, so ambiguous)" },
-        /* 11*/ { UNICODE_MODE, "~", 0, "85 F8 00 EC 11 EC 11 EC 00", "B1 (ASCII) (same bytes as ‾ Shift JIS below, so ambiguous)" },
-        /* 12*/ { UNICODE_MODE, "‾", 0, "85 F8 00 EC 11 EC 11 EC 00", "B1 (Shift JIS) (same bytes as ~ ASCII above, so ambiguous)" },
-        /* 13*/ { UNICODE_MODE, "点", 0, "CB 67 C0 00 EC 11 EC 11 00", "K1 (Shift JIS)" },
-        /* 14*/ { DATA_MODE, "\223\137", 0, "CB 67 C0 00 EC 11 EC 11 00", "K1 (Shift JIS)" },
-        /* 15*/ { DATA_MODE, "点", 0, "8F 9E 0A E4 00 EC 11 EC 00", "B3 (UTF-8)" },
-        /* 16*/ { UNICODE_MODE, "茗", 0, "CE AA 80 00 EC 11 EC 11 00", "K1 (Shift JIS)" },
-        /* 17*/ { DATA_MODE, "\344\252", 0, "CE AA 80 00 EC 11 EC 11 00", "K1 (Shift JIS)" },
-        /* 18*/ { DATA_MODE, "茗", 0, "8F A2 32 5C 00 EC 11 EC 00", "B3 (UTF-8)" },
-        /* 19*/ { UNICODE_MODE, "¥点", 0, "8D 72 4D 7C 00 EC 11 EC 00", "B3 (Shift JIS) (optimized from B1 K1)" },
-        /* 20*/ { DATA_MODE, "\134\223\137", 0, "8D 72 4D 7C 00 EC 11 EC 00", "B3 (Shift JIS) (optimized from B1 K1)" },
-        /* 21*/ { DATA_MODE, "¥点", 0, "97 0A 97 9E 0A E4 00 EC 00", "B5 (UTF-8)" },
-        /* 22*/ { UNICODE_MODE, "点茗", 0, "D3 67 F5 54 00 EC 11 EC 00", "K2 (Shift JIS)" },
-        /* 23*/ { DATA_MODE, "\223\137\344\252", 0, "D3 67 F5 54 00 EC 11 EC 00", "K2 (Shift JIS)" },
-        /* 24*/ { DATA_MODE, "点茗", 0, "9B 9E 0A E7 A2 32 5C 00 00", "B6 (UTF-8)" },
-        /* 25*/ { UNICODE_MODE, "点茗･", 0, "D3 67 F5 55 0D 28 00 EC 00", "K2 B1 (Shift JIS)" },
-        /* 26*/ { DATA_MODE, "\223\137\344\252\245", 0, "D3 67 F5 55 0D 28 00 EC 00", "K2 B1 (Shift JIS)" },
-        /* 27*/ { DATA_MODE, "点茗･", 0, "A7 9E 0A E7 A2 32 5F BE F6 94 00", "B9 (UTF-8)" },
-        /* 28*/ { UNICODE_MODE, "¥点茗･", 0, "99 72 4D 7F 92 AA 94 00 00", "B6 (Shift JIS) (optimized from B1 K2 B1)" },
-        /* 29*/ { DATA_MODE, "\134\223\137\344\252\245", 0, "99 72 4D 7F 92 AA 94 00 00", "B6 (Shift JIS) (optimized from B1 K2 B1)" },
-        /* 30*/ { DATA_MODE, "¥点茗･", 0, "4B C2 A5 E7 82 B9 E8 8C 97 EF BD A5 00 00", "B11 (UTF-8)" },
+        /*  0*/ { UNICODE_MODE, -1, "é", 0, "87 A4 00 EC 11 EC 11 EC 00", "B1 (ISO 8859-1)" },
+        /*  1*/ { DATA_MODE, -1, "é", 0, "8B 0E A4 00 EC 11 EC 11 00", "B2 (UTF-8)" },
+        /*  2*/ { UNICODE_MODE, -1, "β", 0, "C8 80 00 00 EC 11 EC 11 00", "K1 (Shift JIS)" },
+        /*  3*/ { UNICODE_MODE, -1, "ก", ZINT_ERROR_INVALID_DATA, "Error 800: Invalid character in input data", "ก not in Shift JIS" },
+        /*  4*/ { UNICODE_MODE, -1, "Ж", 0, "C8 91 C0 00 EC 11 EC 11 00", "K1 (Shift JIS)" },
+        /*  5*/ { UNICODE_MODE, -1, "ກ", ZINT_ERROR_INVALID_DATA, "Error 800: Invalid character in input data", "ກ not in Shift JIS" },
+        /*  6*/ { UNICODE_MODE, -1, "\\", 0, "85 70 00 EC 11 EC 11 EC 00", "B1 (ASCII)" },
+        /*  7*/ { UNICODE_MODE, -1, "¥", 0, "86 94 00 EC 11 EC 11 EC 00", "B1 (ISO 8859-1) (same bytes as ･ Shift JIS below, so ambiguous)" },
+        /*  8*/ { UNICODE_MODE, -1, "･", 0, "86 94 00 EC 11 EC 11 EC 00", "B1 (Shift JIS) single-byte codepoint A5 (same bytes as ¥ ISO 8859-1 above, so ambiguous)" },
+        /*  9*/ { UNICODE_MODE, -1, "¿", 0, "86 FC 00 EC 11 EC 11 EC 00", "B1 (ISO 8859-1) (same bytes as ｿ Shift JIS below, so ambiguous)" },
+        /* 10*/ { UNICODE_MODE, -1, "ｿ", 0, "86 FC 00 EC 11 EC 11 EC 00", "B1 (Shift JIS) (same bytes as ¿ ISO 8859-1 above, so ambiguous)" },
+        /* 11*/ { UNICODE_MODE, -1, "~", 0, "85 F8 00 EC 11 EC 11 EC 00", "B1 (ASCII) (same bytes as ‾ Shift JIS below, so ambiguous)" },
+        /* 12*/ { UNICODE_MODE, -1, "‾", 0, "85 F8 00 EC 11 EC 11 EC 00", "B1 (Shift JIS) (same bytes as ~ ASCII above, so ambiguous)" },
+        /* 13*/ { UNICODE_MODE, -1, "点", 0, "CB 67 C0 00 EC 11 EC 11 00", "K1 (Shift JIS)" },
+        /* 14*/ { DATA_MODE, -1, "\223\137", 0, "8A 4D 7C 00 EC 11 EC 11 00", "B2 (Shift JIS)" },
+        /* 15*/ { DATA_MODE, 200, "\223\137", 0, "CB 67 C0 00 EC 11 EC 11 00", "K1 (Shift JIS) (full multibyte)" },
+        /* 16*/ { DATA_MODE, -1, "点", 0, "8F 9E 0A E4 00 EC 11 EC 00", "B3 (UTF-8)" },
+        /* 17*/ { UNICODE_MODE, -1, "茗", 0, "CE AA 80 00 EC 11 EC 11 00", "K1 (Shift JIS)" },
+        /* 18*/ { DATA_MODE, -1, "\344\252", 0, "8B 92 A8 00 EC 11 EC 11 00", "B2 (Shift JIS)" },
+        /* 19*/ { DATA_MODE, 200, "\344\252", 0, "CE AA 80 00 EC 11 EC 11 00", "K1 (Shift JIS) (full multibyte)" },
+        /* 20*/ { DATA_MODE, -1, "茗", 0, "8F A2 32 5C 00 EC 11 EC 00", "B3 (UTF-8)" },
+        /* 21*/ { UNICODE_MODE, -1, "¥点", 0, "8D 72 4D 7C 00 EC 11 EC 00", "B3 (Shift JIS) (optimized from B1 K1)" },
+        /* 22*/ { DATA_MODE, -1, "\134\223\137", 0, "8D 72 4D 7C 00 EC 11 EC 00", "B3 (Shift JIS) (optimized from B1 K1)" },
+        /* 23*/ { DATA_MODE, -1, "¥点", 0, "97 0A 97 9E 0A E4 00 EC 00", "B5 (UTF-8)" },
+        /* 24*/ { UNICODE_MODE, -1, "点茗", 0, "D3 67 F5 54 00 EC 11 EC 00", "K2 (Shift JIS)" },
+        /* 25*/ { DATA_MODE, -1, "\223\137\344\252", 0, "92 4D 7F 92 A8 00 EC 11 00", "B4 (Shift JIS)" },
+        /* 26*/ { DATA_MODE, 200, "\223\137\344\252", 0, "D3 67 F5 54 00 EC 11 EC 00", "K2 (Shift JIS) (full multibyte)" },
+        /* 27*/ { DATA_MODE, -1, "点茗", 0, "9B 9E 0A E7 A2 32 5C 00 00", "B6 (UTF-8)" },
+        /* 28*/ { DATA_MODE, 200, "点茗", 0, "9B 9E 0A E7 A2 32 5C 00 00", "B6 (UTF-8)" },
+        /* 29*/ { UNICODE_MODE, -1, "点茗･", 0, "D3 67 F5 55 0D 28 00 EC 00", "K2 B1 (Shift JIS)" },
+        /* 30*/ { DATA_MODE, -1, "\223\137\344\252\245", 0, "96 4D 7F 92 AA 94 00 EC 00", "B5 (Shift JIS)" },
+        /* 31*/ { DATA_MODE, 200, "\223\137\344\252\245", 0, "D3 67 F5 55 0D 28 00 EC 00", "K2 B1 (Shift JIS) (full multibyte)" },
+        /* 32*/ { DATA_MODE, -1, "点茗･", 0, "A7 9E 0A E7 A2 32 5F BE F6 94 00", "B9 (UTF-8)" },
+        /* 33*/ { UNICODE_MODE, -1, "¥点茗･", 0, "99 72 4D 7F 92 AA 94 00 00", "B6 (Shift JIS) (optimized from B1 K2 B1)" },
+        /* 34*/ { DATA_MODE, -1, "\134\223\137\344\252\245", 0, "99 72 4D 7F 92 AA 94 00 00", "B6 (Shift JIS) (optimized from B1 K2 B1)" },
+        /* 35*/ { DATA_MODE, -1, "¥点茗･", 0, "4B C2 A5 E7 82 B9 E8 8C 97 EF BD A5 00 00", "B11 (UTF-8)" },
+        /* 36*/ { DATA_MODE, -1, "ÁȁȁȁȂ¢", 0, "4C C3 81 C8 81 C8 81 C8 81 C8 82 C2 A2 00", "B12 (UTF-8)" },
+        /* 37*/ { DATA_MODE, -1, "ÁȁȁȁȁȂ¢", 0, "4E C3 81 C8 81 C8 81 C8 81 C8 81 C8 82 C2 A2 00", "B14 (UTF-8)" },
+        /* 38*/ { DATA_MODE, 200, "ÁȁȁȁȁȂ¢", 0, "41 C3 6C 08 80 44 02 20 11 00 88 0A 12 0D 10 00", "B1 K6 B1 (UTF-8) (full multibyte)" },
+        /* 39*/ { UNICODE_MODE, -1, "áA", 0, "8B 85 04 00 EC 11 EC 11 00", "B2 (ISO 8859-1)" },
+        /* 40*/ { UNICODE_MODE, 200, "áA", 0, "CE 00 40 00 EC 11 EC 11 00", "K1 (ISO 8859-1) (full multibyte)" },
     };
     int data_size = sizeof(data) / sizeof(struct item);
 
@@ -1084,27 +1147,33 @@ static void test_microqr_input(void)
 
     for (int i = 0; i < data_size; i++) {
 
-        struct zint_symbol* symbol = ZBarcode_Create();
+        if (index != -1 && i != index) continue;
+
+        struct zint_symbol *symbol = ZBarcode_Create();
         assert_nonnull(symbol, "Symbol not created\n");
 
         symbol->symbology = BARCODE_MICROQR;
         symbol->input_mode = data[i].input_mode;
+        if (data[i].option_3 != -1) {
+            symbol->option_3 = data[i].option_3;
+        }
         symbol->debug = ZINT_DEBUG_TEST; // Needed to get codeword dump in errtxt
+        symbol->debug |= debug;
 
         int length = strlen(data[i].data);
 
         ret = ZBarcode_Encode(symbol, data[i].data, length);
         assert_equal(ret, data[i].ret, "i:%d ZBarcode_Encode ret %d != %d\n", i, ret, data[i].ret);
 
-        #ifdef TEST_MICROQR_INPUT_GENERATE_EXPECTED
-        printf("        /*%3d*/ { %s, \"%s\", %s, \"%s\", \"%s\" },\n",
-                i, testUtilInputModeName(data[i].input_mode), testUtilEscape(data[i].data, length, escaped, sizeof(escaped)), testUtilErrorName(data[i].ret),
-                symbol->errtxt, data[i].comment);
-        #else
-        if (ret < 5) {
-            assert_zero(strcmp(symbol->errtxt, data[i].expected), "i:%d strcmp(%s, %s) != 0\n", i, symbol->errtxt, data[i].expected);
+        if (generate) {
+            printf("        /*%3d*/ { %s, %d, \"%s\", %s, \"%s\", \"%s\" },\n",
+                    i, testUtilInputModeName(data[i].input_mode), data[i].option_3, testUtilEscape(data[i].data, length, escaped, sizeof(escaped)),
+                    testUtilErrorName(data[i].ret), symbol->errtxt, data[i].comment);
+        } else {
+            if (ret < 5) {
+                assert_zero(strcmp(symbol->errtxt, data[i].expected), "i:%d strcmp(%s, %s) != 0\n", i, symbol->errtxt, data[i].expected);
+            }
         }
-        #endif
 
         ZBarcode_Delete(symbol);
     }
@@ -1113,17 +1182,17 @@ static void test_microqr_input(void)
 }
 
 // Check MICROQR padding (4-bit final codeword for M1 and M3 in particular)
-static void test_microqr_padding(void)
-{
+static void test_microqr_padding(int index, int generate, int debug) {
+
     testStart("");
 
     int ret;
     struct item {
-        unsigned char* data;
+        unsigned char *data;
         int option_1;
         int ret;
-        char* expected;
-        char* comment;
+        char *expected;
+        char *comment;
     };
     struct item data[] = {
         /*  0*/ { "1", -1, 0, "22 00 00", "M1, bits left 13" },
@@ -1158,7 +1227,9 @@ static void test_microqr_padding(void)
 
     for (int i = 0; i < data_size; i++) {
 
-        struct zint_symbol* symbol = ZBarcode_Create();
+        if (index != -1 && i != index) continue;
+
+        struct zint_symbol *symbol = ZBarcode_Create();
         assert_nonnull(symbol, "Symbol not created\n");
 
         symbol->symbology = BARCODE_MICROQR;
@@ -1167,21 +1238,22 @@ static void test_microqr_padding(void)
             symbol->option_1 = data[i].option_1;
         }
         symbol->debug = ZINT_DEBUG_TEST; // Needed to get codeword dump in errtxt
+        symbol->debug |= debug;
 
         int length = strlen(data[i].data);
 
         ret = ZBarcode_Encode(symbol, data[i].data, length);
         assert_equal(ret, data[i].ret, "i:%d ZBarcode_Encode ret %d != %d (%s)\n", i, ret, data[i].ret, symbol->errtxt);
 
-        #ifdef TEST_MICROQR_PADDING_GENERATE_EXPECTED
-        printf("        /*%3d*/ { \"%s\", %d, %s, \"%s\", \"%s\" },\n",
-                i, testUtilEscape(data[i].data, length, escaped, sizeof(escaped)), data[i].option_1,
-                testUtilErrorName(data[i].ret), symbol->errtxt, data[i].comment);
-        #else
-        if (ret < 5) {
-            assert_zero(strcmp(symbol->errtxt, data[i].expected), "i:%d strcmp(%s, %s) != 0\n", i, symbol->errtxt, data[i].expected);
+        if (generate) {
+            printf("        /*%3d*/ { \"%s\", %d, %s, \"%s\", \"%s\" },\n",
+                    i, testUtilEscape(data[i].data, length, escaped, sizeof(escaped)), data[i].option_1,
+                    testUtilErrorName(data[i].ret), symbol->errtxt, data[i].comment);
+        } else {
+            if (ret < 5) {
+                assert_zero(strcmp(symbol->errtxt, data[i].expected), "i:%d strcmp(%s, %s) != 0\n", i, symbol->errtxt, data[i].expected);
+            }
         }
-        #endif
 
         ZBarcode_Delete(symbol);
     }
@@ -1189,19 +1261,19 @@ static void test_microqr_padding(void)
     testFinish();
 }
 
-static void test_microqr_optimize(void)
-{
+static void test_microqr_optimize(int index, int generate, int debug) {
+
     testStart("");
 
     int ret;
     struct item {
         int input_mode;
-        unsigned char* data;
+        unsigned char *data;
         int option_1;
         int option_2;
         int ret;
-        char* expected;
-        char* comment;
+        char *expected;
+        char *comment;
     };
     struct item data[] = {
         /*  0*/ { UNICODE_MODE, "1", -1, -1, 0, "22 00 00", "N1" },
@@ -1221,7 +1293,9 @@ static void test_microqr_optimize(void)
 
     for (int i = 0; i < data_size; i++) {
 
-        struct zint_symbol* symbol = ZBarcode_Create();
+        if (index != -1 && i != index) continue;
+
+        struct zint_symbol *symbol = ZBarcode_Create();
         assert_nonnull(symbol, "Symbol not created\n");
 
         symbol->symbology = BARCODE_MICROQR;
@@ -1232,20 +1306,22 @@ static void test_microqr_optimize(void)
         if (data[i].option_2 != -1) {
             symbol->option_2 = data[i].option_2;
         }
+        symbol->option_3 = ZINT_FULL_MULTIBYTE;
         symbol->debug = ZINT_DEBUG_TEST;
+        symbol->debug |= debug;
 
         int length = strlen(data[i].data);
 
         ret = ZBarcode_Encode(symbol, data[i].data, length);
         assert_equal(ret, data[i].ret, "i:%d ZBarcode_Encode ret %d != %d (%s)\n", i, ret, data[i].ret, symbol->errtxt);
 
-        #ifdef TEST_MICROQR_OPTIMIZE_GENERATE_EXPECTED
-        printf("        /*%3d*/ { %s, \"%s\", %d, %d, %s, \"%s\", \"%s\" },\n",
-                i, testUtilInputModeName(data[i].input_mode), testUtilEscape(data[i].data, length, escaped, sizeof(escaped)), data[i].option_1, data[i].option_2,
-                testUtilErrorName(data[i].ret), symbol->errtxt, data[i].comment);
-        #else
-        assert_zero(strcmp(symbol->errtxt, data[i].expected), "i:%d strcmp(%s, %s) != 0\n", i, symbol->errtxt, data[i].expected);
-        #endif
+        if (generate) {
+            printf("        /*%3d*/ { %s, \"%s\", %d, %d, %s, \"%s\", \"%s\" },\n",
+                    i, testUtilInputModeName(data[i].input_mode), testUtilEscape(data[i].data, length, escaped, sizeof(escaped)), data[i].option_1, data[i].option_2,
+                    testUtilErrorName(data[i].ret), symbol->errtxt, data[i].comment);
+        } else {
+            assert_zero(strcmp(symbol->errtxt, data[i].expected), "i:%d strcmp(%s, %s) != 0\n", i, symbol->errtxt, data[i].expected);
+        }
 
         ZBarcode_Delete(symbol);
     }
@@ -1253,22 +1329,22 @@ static void test_microqr_optimize(void)
     testFinish();
 }
 
-static void test_microqr_encode(void)
-{
+static void test_microqr_encode(int index, int generate, int debug) {
+
     testStart("");
 
     int ret;
     struct item {
         int input_mode;
-        unsigned char* data;
+        unsigned char *data;
         int option_1;
         int option_2;
         int ret;
 
         int expected_rows;
         int expected_width;
-        char* comment;
-        char* expected;
+        char *comment;
+        char *expected;
     };
     struct item data[] = {
         /*  0*/ { UNICODE_MODE, "12345", -1, -1, 0, 11, 11, "Max capacity M1 5 numbers",
@@ -1429,7 +1505,9 @@ static void test_microqr_encode(void)
 
     for (int i = 0; i < data_size; i++) {
 
-        struct zint_symbol* symbol = ZBarcode_Create();
+        if (index != -1 && i != index) continue;
+
+        struct zint_symbol *symbol = ZBarcode_Create();
         assert_nonnull(symbol, "Symbol not created\n");
 
         symbol->symbology = BARCODE_MICROQR;
@@ -1440,30 +1518,31 @@ static void test_microqr_encode(void)
         if (data[i].option_2 != -1) {
             symbol->option_2 = data[i].option_2;
         }
+        symbol->debug |= debug;
 
         int length = strlen(data[i].data);
 
         ret = ZBarcode_Encode(symbol, data[i].data, length);
         assert_equal(ret, data[i].ret, "i:%d ZBarcode_Encode ret %d != %d (%s)\n", i, ret, data[i].ret, symbol->errtxt);
 
-        #ifdef TEST_MICROQR_ENCODE_GENERATE_EXPECTED
-        printf("        /*%3d*/ { %s, \"%s\", %d, %d, %s, %d, %d, \"%s\",\n",
-                i, testUtilInputModeName(data[i].input_mode), data[i].data, data[i].option_1, data[i].option_2, testUtilErrorName(data[i].ret),
-                symbol->rows, symbol->width, data[i].comment);
-        testUtilModulesDump(symbol, "                    ", "\n");
-        printf("               },\n");
-        #else
-        if (ret < 5) {
-            assert_equal(symbol->rows, data[i].expected_rows, "i:%d symbol->rows %d != %d (%s)\n", i, symbol->rows, data[i].expected_rows, data[i].data);
-            assert_equal(symbol->width, data[i].expected_width, "i:%d symbol->width %d != %d (%s)\n", i, symbol->width, data[i].expected_width, data[i].data);
+        if (generate) {
+            printf("        /*%3d*/ { %s, \"%s\", %d, %d, %s, %d, %d, \"%s\",\n",
+                    i, testUtilInputModeName(data[i].input_mode), data[i].data, data[i].option_1, data[i].option_2, testUtilErrorName(data[i].ret),
+                    symbol->rows, symbol->width, data[i].comment);
+            testUtilModulesDump(symbol, "                    ", "\n");
+            printf("               },\n");
+        } else {
+            if (ret < 5) {
+                assert_equal(symbol->rows, data[i].expected_rows, "i:%d symbol->rows %d != %d (%s)\n", i, symbol->rows, data[i].expected_rows, data[i].data);
+                assert_equal(symbol->width, data[i].expected_width, "i:%d symbol->width %d != %d (%s)\n", i, symbol->width, data[i].expected_width, data[i].data);
 
-            if (ret == 0) {
-                int width, row;
-                ret = testUtilModulesCmp(symbol, data[i].expected, &width, &row);
-                assert_zero(ret, "i:%d testUtilModulesCmp ret %d != 0 width %d row %d (%s)\n", i, ret, width, row, data[i].data);
+                if (ret == 0) {
+                    int width, row;
+                    ret = testUtilModulesCmp(symbol, data[i].expected, &width, &row);
+                    assert_zero(ret, "i:%d testUtilModulesCmp ret %d != 0 width %d row %d (%s)\n", i, ret, width, row, data[i].data);
+                }
             }
         }
-        #endif
 
         ZBarcode_Delete(symbol);
     }
@@ -1471,17 +1550,17 @@ static void test_microqr_encode(void)
     testFinish();
 }
 
-static void test_upnqr_input(void)
-{
+static void test_upnqr_input(int index, int generate, int debug) {
+
     testStart("");
 
     int ret;
     struct item {
         int input_mode;
-        unsigned char* data;
+        unsigned char *data;
         int ret;
-        char* expected;
-        char* comment;
+        char *expected;
+        char *comment;
     };
     // Ą U+0104 in ISO 8859-2 0xA1, in other ISO 8859 and Win 1250, UTF-8 C484
     // Ŕ U+0154 in ISO 8859-2 0xC0, in Win 1250 but not other ISO 8859 or Win page, UTF-8 C594
@@ -1498,12 +1577,15 @@ static void test_upnqr_input(void)
 
     for (int i = 0; i < data_size; i++) {
 
-        struct zint_symbol* symbol = ZBarcode_Create();
+        if (index != -1 && i != index) continue;
+
+        struct zint_symbol *symbol = ZBarcode_Create();
         assert_nonnull(symbol, "Symbol not created\n");
 
         symbol->symbology = BARCODE_UPNQR;
         symbol->input_mode = data[i].input_mode;
         symbol->debug = ZINT_DEBUG_TEST; // Needed to get codeword dump in errtxt
+        symbol->debug |= debug;
 
         int length = strlen(data[i].data);
 
@@ -1511,15 +1593,15 @@ static void test_upnqr_input(void)
         assert_equal(ret, data[i].ret, "i:%d ZBarcode_Encode ret %d != %d\n", i, ret, data[i].ret);
         assert_equal(symbol->eci, 4, "i:%d ZBarcode_Encode symbol->eci %d != 4\n", i, symbol->eci);
 
-        #ifdef TEST_UPNQR_INPUT_GENERATE_EXPECTED
-        printf("        /*%3d*/ { %s, \"%s\", %s, \"%s\", \"%s\" },\n",
-                i, testUtilInputModeName(data[i].input_mode), testUtilEscape(data[i].data, length, escaped, sizeof(escaped)), testUtilErrorName(data[i].ret),
-                symbol->errtxt, data[i].comment);
-        #else
-        if (ret < 5) {
-            assert_zero(strcmp(symbol->errtxt, data[i].expected), "i:%d strcmp(%s, %s) != 0\n", i, symbol->errtxt, data[i].expected);
+        if (generate) {
+            printf("        /*%3d*/ { %s, \"%s\", %s, \"%s\", \"%s\" },\n",
+                    i, testUtilInputModeName(data[i].input_mode), testUtilEscape(data[i].data, length, escaped, sizeof(escaped)), testUtilErrorName(data[i].ret),
+                    symbol->errtxt, data[i].comment);
+        } else {
+            if (ret < 5) {
+                assert_zero(strcmp(symbol->errtxt, data[i].expected), "i:%d strcmp(%s, %s) != 0\n", i, symbol->errtxt, data[i].expected);
+            }
         }
-        #endif
 
         ZBarcode_Delete(symbol);
     }
@@ -1527,22 +1609,22 @@ static void test_upnqr_input(void)
     testFinish();
 }
 
-static void test_upnqr_encode(void)
-{
+static void test_upnqr_encode(int index, int generate, int debug) {
+
     testStart("");
 
     int ret;
     struct item {
         int input_mode;
-        unsigned char* data;
+        unsigned char *data;
         int option_1;
         int option_2;
         int ret;
 
         int expected_rows;
         int expected_width;
-        char* comment;
-        char* expected;
+        char *comment;
+        char *expected;
     };
 
     struct item data[] = {
@@ -1630,7 +1712,9 @@ static void test_upnqr_encode(void)
 
     for (int i = 0; i < data_size; i++) {
 
-        struct zint_symbol* symbol = ZBarcode_Create();
+        if (index != -1 && i != index) continue;
+
+        struct zint_symbol *symbol = ZBarcode_Create();
         assert_nonnull(symbol, "Symbol not created\n");
 
         symbol->symbology = BARCODE_UPNQR;
@@ -1641,30 +1725,31 @@ static void test_upnqr_encode(void)
         if (data[i].option_2 != -1) {
             symbol->option_2 = data[i].option_2;
         }
+        symbol->debug |= debug;
 
         int length = strlen(data[i].data);
 
         ret = ZBarcode_Encode(symbol, data[i].data, length);
         assert_equal(ret, data[i].ret, "i:%d ZBarcode_Encode ret %d != %d (%s)\n", i, ret, data[i].ret, symbol->errtxt);
 
-        #ifdef TEST_UPNQR_ENCODE_GENERATE_EXPECTED
-        printf("        /*%3d*/ { %s, \"%s\", %d, %d, %s, %d, %d, \"%s\",\n",
-                i, testUtilInputModeName(data[i].input_mode), data[i].data, data[i].option_1, data[i].option_2, testUtilErrorName(data[i].ret),
-                symbol->rows, symbol->width, data[i].comment);
-        testUtilModulesDump(symbol, "                    ", "\n");
-        printf("               },\n");
-        #else
-        if (ret < 5) {
-            assert_equal(symbol->rows, data[i].expected_rows, "i:%d symbol->rows %d != %d (%s)\n", i, symbol->rows, data[i].expected_rows, data[i].data);
-            assert_equal(symbol->width, data[i].expected_width, "i:%d symbol->width %d != %d (%s)\n", i, symbol->width, data[i].expected_width, data[i].data);
+        if (generate) {
+            printf("        /*%3d*/ { %s, \"%s\", %d, %d, %s, %d, %d, \"%s\",\n",
+                    i, testUtilInputModeName(data[i].input_mode), data[i].data, data[i].option_1, data[i].option_2, testUtilErrorName(data[i].ret),
+                    symbol->rows, symbol->width, data[i].comment);
+            testUtilModulesDump(symbol, "                    ", "\n");
+            printf("               },\n");
+        } else {
+            if (ret < 5) {
+                assert_equal(symbol->rows, data[i].expected_rows, "i:%d symbol->rows %d != %d (%s)\n", i, symbol->rows, data[i].expected_rows, data[i].data);
+                assert_equal(symbol->width, data[i].expected_width, "i:%d symbol->width %d != %d (%s)\n", i, symbol->width, data[i].expected_width, data[i].data);
 
-            if (ret == 0) {
-                int width, row;
-                ret = testUtilModulesCmp(symbol, data[i].expected, &width, &row);
-                assert_zero(ret, "i:%d testUtilModulesCmp ret %d != 0 width %d row %d (%s)\n", i, ret, width, row, data[i].data);
+                if (ret == 0) {
+                    int width, row;
+                    ret = testUtilModulesCmp(symbol, data[i].expected, &width, &row);
+                    assert_zero(ret, "i:%d testUtilModulesCmp ret %d != 0 width %d row %d (%s)\n", i, ret, width, row, data[i].data);
+                }
             }
         }
-        #endif
 
         ZBarcode_Delete(symbol);
     }
@@ -1672,13 +1757,13 @@ static void test_upnqr_encode(void)
     testFinish();
 }
 
-static void test_rmqr_options(void)
-{
+static void test_rmqr_options(int index, int debug) {
+
     testStart("");
 
     int ret;
     struct item {
-        unsigned char* data;
+        unsigned char *data;
         int option_1;
         int option_2;
         int ret_encode;
@@ -1759,7 +1844,9 @@ static void test_rmqr_options(void)
 
     for (int i = 0; i < data_size; i++) {
 
-        struct zint_symbol* symbol = ZBarcode_Create();
+        if (index != -1 && i != index) continue;
+
+        struct zint_symbol *symbol = ZBarcode_Create();
         assert_nonnull(symbol, "Symbol not created\n");
 
         symbol->symbology = BARCODE_RMQR;
@@ -1770,6 +1857,8 @@ static void test_rmqr_options(void)
         if (data[i].option_2 != -1) {
             symbol->option_2 = data[i].option_2;
         }
+        symbol->debug |= debug;
+
         int length = strlen(data[i].data);
 
         ret = ZBarcode_Encode(symbol, data[i].data, length);
@@ -1788,17 +1877,18 @@ static void test_rmqr_options(void)
     testFinish();
 }
 
-static void test_rmqr_input(void)
-{
+static void test_rmqr_input(int index, int generate, int debug) {
+
     testStart("");
 
     int ret;
     struct item {
         int input_mode;
-        unsigned char* data;
+        int option_3;
+        unsigned char *data;
         int ret;
-        char* expected;
-        char* comment;
+        char *expected;
+        char *comment;
     };
     // é U+00E9 in ISO 8859-1 plus other ISO 8859 (but not in ISO 8859-7 or ISO 8859-11), Win 1250 plus other Win, not in Shift JIS, UTF-8 C3A9
     // β U+03B2 in ISO 8859-7 Greek (but not other ISO 8859 or Win page), in Shift JIS 0x83C0, UTF-8 CEB2
@@ -1806,21 +1896,21 @@ static void test_rmqr_input(void)
     // Ж U+0416 in ISO 8859-5 Cyrillic (but not other ISO 8859), Win 1251, in Shift JIS 0x8447, UTF-8 D096
     // ກ U+0E81 Lao not in any ISO 8859 (or Win page) or Shift JIS, UTF-8 E0BA81
     // ¥ U+00A5 in ISO 8859-1 0xA5 (\245), in Shift JIS single-byte 0x5C (\134) (backslash); 0xA5 same codepoint as single-byte half-width katakana ･ (U+FF65) in Shift JIS (below), UTF-8 C2A5
-    // ･ U+FF65 half-width katakana, not in ISO/Win, in Shift JIS single-byte 0xA5 (\245), UTF-8 EFBDA5
-    // ¿ U+00BF in ISO 8859-1 0xBF (\277), not in Shift JIS; 0xBF same codepoint as single-byte half-width katakana ｿ (U+FF7F) in Shift JIS (below), UTF-8 C2BF
-    // ｿ U+FF7F half-width katakana, not in ISO/Win, in Shift JIS single-byte 0xBF (\277), UTF-8 EFBDBF
-    // ‾ U+203E overline, not in ISO/Win, in Shift JIS single-byte 0x7E (\176) (tilde), UTF-8 E280BE
     // 点 U+70B9 kanji, in Shift JIS 0x935F (\223\137), UTF-8 E782B9
-    // 茗 U+8317 kanji, in Shift JIS 0xE4AA (\344\252), UTF-8 E88C97
-    // テ U+30C6 katakana, in Shift JIS 0x8365 (\203\145), UTF-8 E38386
+    // Á U+00C1, UTF-8 C381; ȁ U+0201, UTF-8 C881; Ȃ U+0202, UTF-8 C882; ¢ U+00A2, UTF-8 C2A2
     struct item data[] = {
-        /*  0*/ { UNICODE_MODE, "é", 0, "67 A4 00 EC 11", "B1 (ISO 8859-1)" },
-        /*  1*/ { DATA_MODE, "é", 0, "6B 0E A4 00 EC", "B2 (UTF-8)" },
-        /*  2*/ { DATA_MODE, "\351", 0, "67 A4 00 EC 11", "B1 (ISO 8859-1)" },
-        /*  3*/ { UNICODE_MODE, "β", 0, "88 80 00 EC 11", "K1 (Shift JIS)" },
-        /*  4*/ { UNICODE_MODE, "ก", ZINT_ERROR_INVALID_DATA, "Error 800: Invalid character in input data", "ก not in ISO 8859-1 or Shift JIS" },
-        /*  5*/ { UNICODE_MODE, "Ж", 0, "88 91 C0 EC 11", "K1 (Shift JIS)" },
-        /*  6*/ { UNICODE_MODE, "¥･点", 0, "71 72 96 4D 7C", "B2 K1 (Shift JIS) (optimized to byte mode only)" },
+        /*  0*/ { UNICODE_MODE, -1, "é", 0, "67 A4 00 EC 11", "B1 (ISO 8859-1)" },
+        /*  1*/ { DATA_MODE, -1, "é", 0, "6B 0E A4 00 EC", "B2 (UTF-8)" },
+        /*  2*/ { DATA_MODE, -1, "\351", 0, "67 A4 00 EC 11", "B1 (ISO 8859-1)" },
+        /*  3*/ { UNICODE_MODE, -1, "β", 0, "88 80 00 EC 11", "K1 (Shift JIS)" },
+        /*  4*/ { UNICODE_MODE, -1, "ก", ZINT_ERROR_INVALID_DATA, "Error 800: Invalid character in input data", "ก not in ISO 8859-1 or Shift JIS" },
+        /*  5*/ { UNICODE_MODE, -1, "Ж", 0, "88 91 C0 EC 11", "K1 (Shift JIS)" },
+        /*  6*/ { UNICODE_MODE, -1, "¥･点", 0, "71 72 96 4D 7C", "B2 K1 (Shift JIS) (optimized to byte mode only)" },
+        /*  7*/ { DATA_MODE, -1, "ÁȁȁȁȂ¢", 0, "6C C3 81 C8 81 C8 81 C8 81 C8 82 C2 A2 00 EC 11 EC 11 EC", "B12 (UTF-8)" },
+        /*  8*/ { DATA_MODE, -1, "ÁȁȁȁȁȂ¢", 0, "6E C3 81 C8 81 C8 81 C8 81 C8 81 C8 82 C2 A2 00 EC 11 EC", "B14 (UTF-8)" },
+        /*  9*/ { DATA_MODE, 200, "ÁȁȁȁȁȂ¢", 0, "61 C3 8C 08 80 44 02 20 11 00 88 0A 13 0D 10 EC 11 EC 11", "B1 K6 B1 (UTF-8) (full multibyte)" },
+        /* 10*/ { UNICODE_MODE, -1, "áA", 0, "6B 85 04 00 EC", "B2 (ISO 8859-1)" },
+        /* 11*/ { UNICODE_MODE, 200, "áA", 0, "8E 00 40 EC 11", "K1 (ISO 8859-1) (full multibyte)" },
     };
     int data_size = sizeof(data) / sizeof(struct item);
 
@@ -1828,27 +1918,33 @@ static void test_rmqr_input(void)
 
     for (int i = 0; i < data_size; i++) {
 
-        struct zint_symbol* symbol = ZBarcode_Create();
+        if (index != -1 && i != index) continue;
+
+        struct zint_symbol *symbol = ZBarcode_Create();
         assert_nonnull(symbol, "Symbol not created\n");
 
         symbol->symbology = BARCODE_RMQR;
         symbol->input_mode = data[i].input_mode;
+        if (data[i].option_3 != -1) {
+            symbol->option_3 = data[i].option_3;
+        }
         symbol->debug = ZINT_DEBUG_TEST; // Needed to get codeword dump in errtxt
+        symbol->debug |= debug;
 
         int length = strlen(data[i].data);
 
         ret = ZBarcode_Encode(symbol, data[i].data, length);
         assert_equal(ret, data[i].ret, "i:%d ZBarcode_Encode ret %d != %d\n", i, ret, data[i].ret);
 
-        #ifdef TEST_RMQR_INPUT_GENERATE_EXPECTED
-        printf("        /*%3d*/ { %s, \"%s\", %s, \"%s\", \"%s\" },\n",
-                i, testUtilInputModeName(data[i].input_mode), testUtilEscape(data[i].data, length, escaped, sizeof(escaped)), testUtilErrorName(data[i].ret),
-                symbol->errtxt, data[i].comment);
-        #else
-        if (ret < 5) {
-            assert_zero(strcmp(symbol->errtxt, data[i].expected), "i:%d strcmp(%s, %s) != 0\n", i, symbol->errtxt, data[i].expected);
+        if (generate) {
+            printf("        /*%3d*/ { %s, %d, \"%s\", %s, \"%s\", \"%s\" },\n",
+                    i, testUtilInputModeName(data[i].input_mode), data[i].option_3, testUtilEscape(data[i].data, length, escaped, sizeof(escaped)),
+                    testUtilErrorName(data[i].ret), symbol->errtxt, data[i].comment);
+        } else {
+            if (ret < 5) {
+                assert_zero(strcmp(symbol->errtxt, data[i].expected), "i:%d strcmp(%s, %s) != 0\n", i, symbol->errtxt, data[i].expected);
+            }
         }
-        #endif
 
         ZBarcode_Delete(symbol);
     }
@@ -1856,16 +1952,16 @@ static void test_rmqr_input(void)
     testFinish();
 }
 
-static void test_rmqr_gs1(void)
-{
+static void test_rmqr_gs1(int index, int generate, int debug) {
+
     testStart("");
 
     int ret;
     struct item {
-        unsigned char* data;
+        unsigned char *data;
         int ret;
-        char* expected;
-        char* comment;
+        char *expected;
+        char *comment;
     };
     struct item data[] = {
         /*  0*/ { "[01]12345678901234", 0, "A6 00 59 D5 1B EF 43 DA 00 EC 11 EC", "N16" },
@@ -1886,27 +1982,29 @@ static void test_rmqr_gs1(void)
 
     for (int i = 0; i < data_size; i++) {
 
-        struct zint_symbol* symbol = ZBarcode_Create();
+        if (index != -1 && i != index) continue;
+
+        struct zint_symbol *symbol = ZBarcode_Create();
         assert_nonnull(symbol, "Symbol not created\n");
 
         symbol->symbology = BARCODE_RMQR;
         symbol->input_mode = GS1_MODE;
         symbol->debug = ZINT_DEBUG_TEST; // Needed to get codeword dump in errtxt
+        symbol->debug |= debug;
 
         int length = strlen(data[i].data);
 
         ret = ZBarcode_Encode(symbol, data[i].data, length);
         assert_equal(ret, data[i].ret, "i:%d ZBarcode_Encode ret %d != %d\n", i, ret, data[i].ret);
 
-        #ifdef TEST_RMQR_GS1_GENERATE_EXPECTED
-        printf("        /*%3d*/ { \"%s\", %s, \"%s\", \"%s\" },\n",
-                i, testUtilEscape(data[i].data, length, escaped, sizeof(escaped)), testUtilErrorName(data[i].ret), symbol->errtxt, data[i].comment);
-        #else
-        if (ret < 5) {
-
-            assert_zero(strcmp(symbol->errtxt, data[i].expected), "i:%d strcmp(%s, %s) != 0\n", i, symbol->errtxt, data[i].expected);
+        if (generate) {
+            printf("        /*%3d*/ { \"%s\", %s, \"%s\", \"%s\" },\n",
+                    i, testUtilEscape(data[i].data, length, escaped, sizeof(escaped)), testUtilErrorName(data[i].ret), symbol->errtxt, data[i].comment);
+        } else {
+            if (ret < 5) {
+                assert_zero(strcmp(symbol->errtxt, data[i].expected), "i:%d strcmp(%s, %s) != 0\n", i, symbol->errtxt, data[i].expected);
+            }
         }
-        #endif
 
         ZBarcode_Delete(symbol);
     }
@@ -1914,18 +2012,18 @@ static void test_rmqr_gs1(void)
     testFinish();
 }
 
-static void test_rmqr_optimize(void)
-{
+static void test_rmqr_optimize(int index, int generate, int debug) {
+
     testStart("");
 
     int ret;
     struct item {
         int input_mode;
-        unsigned char* data;
+        unsigned char *data;
         int option_1;
         int ret;
-        char* expected;
-        char* comment;
+        char *expected;
+        char *comment;
     };
     struct item data[] = {
         /*  0*/ { UNICODE_MODE, "1", -1, 0, "21 10 EC 11 EC", "N1" },
@@ -1957,7 +2055,9 @@ static void test_rmqr_optimize(void)
 
     for (int i = 0; i < data_size; i++) {
 
-        struct zint_symbol* symbol = ZBarcode_Create();
+        if (index != -1 && i != index) continue;
+
+        struct zint_symbol *symbol = ZBarcode_Create();
         assert_nonnull(symbol, "Symbol not created\n");
 
         symbol->symbology = BARCODE_RMQR;
@@ -1965,20 +2065,22 @@ static void test_rmqr_optimize(void)
         if (data[i].option_1 != -1) {
             symbol->option_1 = data[i].option_1;
         }
+        symbol->option_3 = ZINT_FULL_MULTIBYTE;
         symbol->debug = ZINT_DEBUG_TEST;
+        symbol->debug |= debug;
 
         int length = strlen(data[i].data);
 
         ret = ZBarcode_Encode(symbol, data[i].data, length);
         assert_equal(ret, data[i].ret, "i:%d ZBarcode_Encode ret %d != %d (%s)\n", i, ret, data[i].ret, symbol->errtxt);
 
-        #ifdef TEST_RMQR_OPTIMIZE_GENERATE_EXPECTED
-        printf("        /*%3d*/ { %s, \"%s\", %d, %s, \"%s\", \"%s\" },\n",
-                i, testUtilInputModeName(data[i].input_mode), testUtilEscape(data[i].data, length, escaped, sizeof(escaped)), data[i].option_1,
-                testUtilErrorName(data[i].ret), symbol->errtxt, data[i].comment);
-        #else
-        assert_zero(strcmp(symbol->errtxt, data[i].expected), "i:%d strcmp(%s, %s) != 0\n", i, symbol->errtxt, data[i].expected);
-        #endif
+        if (generate) {
+            printf("        /*%3d*/ { %s, \"%s\", %d, %s, \"%s\", \"%s\" },\n",
+                    i, testUtilInputModeName(data[i].input_mode), testUtilEscape(data[i].data, length, escaped, sizeof(escaped)), data[i].option_1,
+                    testUtilErrorName(data[i].ret), symbol->errtxt, data[i].comment);
+        } else {
+            assert_zero(strcmp(symbol->errtxt, data[i].expected), "i:%d strcmp(%s, %s) != 0\n", i, symbol->errtxt, data[i].expected);
+        }
 
         ZBarcode_Delete(symbol);
     }
@@ -1986,22 +2088,22 @@ static void test_rmqr_optimize(void)
     testFinish();
 }
 
-static void test_rmqr_encode(void)
-{
+static void test_rmqr_encode(int index, int generate, int debug) {
+
     testStart("");
 
     int ret;
     struct item {
         int input_mode;
-        unsigned char* data;
+        unsigned char *data;
         int option_1;
         int option_2;
         int ret;
 
         int expected_rows;
         int expected_width;
-        char* comment;
-        char* expected;
+        char *comment;
+        char *expected;
     };
     struct item data[] = {
         /*  0*/ { UNICODE_MODE, "0123456", 4, 11, 0, 11, 27, "Draft ISO 2018-6-8 Annex H I.2, currently no image to compare to",
@@ -2037,7 +2139,9 @@ static void test_rmqr_encode(void)
 
     for (int i = 0; i < data_size; i++) {
 
-        struct zint_symbol* symbol = ZBarcode_Create();
+        if (index != -1 && i != index) continue;
+
+        struct zint_symbol *symbol = ZBarcode_Create();
         assert_nonnull(symbol, "Symbol not created\n");
 
         symbol->symbology = BARCODE_RMQR;
@@ -2048,30 +2152,31 @@ static void test_rmqr_encode(void)
         if (data[i].option_2 != -1) {
             symbol->option_2 = data[i].option_2;
         }
+        symbol->debug |= debug;
 
         int length = strlen(data[i].data);
 
         ret = ZBarcode_Encode(symbol, data[i].data, length);
         assert_equal(ret, data[i].ret, "i:%d ZBarcode_Encode ret %d != %d (%s)\n", i, ret, data[i].ret, symbol->errtxt);
 
-        #ifdef TEST_RMQR_ENCODE_GENERATE_EXPECTED
-        printf("        /*%3d*/ { %s, \"%s\", %d, %d, %s, %d, %d, \"%s\",\n",
-                i, testUtilInputModeName(data[i].input_mode), data[i].data, data[i].option_1, data[i].option_2, testUtilErrorName(data[i].ret),
-                symbol->rows, symbol->width, data[i].comment);
-        testUtilModulesDump(symbol, "                    ", "\n");
-        printf("               },\n");
-        #else
-        if (ret < 5) {
-            assert_equal(symbol->rows, data[i].expected_rows, "i:%d symbol->rows %d != %d (%s)\n", i, symbol->rows, data[i].expected_rows, data[i].data);
-            assert_equal(symbol->width, data[i].expected_width, "i:%d symbol->width %d != %d (%s)\n", i, symbol->width, data[i].expected_width, data[i].data);
+        if (generate) {
+            printf("        /*%3d*/ { %s, \"%s\", %d, %d, %s, %d, %d, \"%s\",\n",
+                    i, testUtilInputModeName(data[i].input_mode), data[i].data, data[i].option_1, data[i].option_2, testUtilErrorName(data[i].ret),
+                    symbol->rows, symbol->width, data[i].comment);
+            testUtilModulesDump(symbol, "                    ", "\n");
+            printf("               },\n");
+        } else {
+            if (ret < 5) {
+                assert_equal(symbol->rows, data[i].expected_rows, "i:%d symbol->rows %d != %d (%s)\n", i, symbol->rows, data[i].expected_rows, data[i].data);
+                assert_equal(symbol->width, data[i].expected_width, "i:%d symbol->width %d != %d (%s)\n", i, symbol->width, data[i].expected_width, data[i].data);
 
-            if (ret == 0) {
-                int width, row;
-                ret = testUtilModulesCmp(symbol, data[i].expected, &width, &row);
-                assert_zero(ret, "i:%d testUtilModulesCmp ret %d != 0 width %d row %d (%s)\n", i, ret, width, row, data[i].data);
+                if (ret == 0) {
+                    int width, row;
+                    ret = testUtilModulesCmp(symbol, data[i].expected, &width, &row);
+                    assert_zero(ret, "i:%d testUtilModulesCmp ret %d != 0 width %d row %d (%s)\n", i, ret, width, row, data[i].data);
+                }
             }
         }
-        #endif
 
         ZBarcode_Delete(symbol);
     }
@@ -2079,28 +2184,32 @@ static void test_rmqr_encode(void)
     testFinish();
 }
 
-int main()
-{
-    test_qr_options();
-    test_qr_input();
-    test_qr_gs1();
-    test_qr_optimize();
-    test_qr_encode();
+int main(int argc, char *argv[]) {
 
-    test_microqr_options();
-    test_microqr_input();
-    test_microqr_padding();
-    test_microqr_optimize();
-    test_microqr_encode();
+    testFunction funcs[] = { /* name, func, has_index, has_generate, has_debug */
+        { "test_qr_options", test_qr_options, 1, 0, 1 },
+        { "test_qr_input", test_qr_input, 1, 1, 1 },
+        { "test_qr_gs1", test_qr_gs1, 1, 1, 1 },
+        { "test_qr_optimize", test_qr_optimize, 1, 1, 1 },
+        { "test_qr_encode", test_qr_encode, 1, 1, 1 },
 
-    test_upnqr_input();
-    test_upnqr_encode();
+        { "test_microqr_options", test_microqr_options, 1, 0, 1 },
+        { "test_microqr_input", test_microqr_input, 1, 1, 1 },
+        { "test_microqr_padding", test_microqr_padding, 1, 1, 1 },
+        { "test_microqr_optimize", test_microqr_optimize, 1, 1, 1 },
+        { "test_microqr_encode", test_microqr_encode, 1, 1, 1 },
 
-    test_rmqr_options();
-    test_rmqr_input();
-    test_rmqr_gs1();
-    test_rmqr_optimize();
-    test_rmqr_encode();
+        { "test_upnqr_input", test_upnqr_input, 1, 1, 1 },
+        { "test_upnqr_encode", test_upnqr_encode, 1, 1, 1 },
+
+        { "test_rmqr_options", test_rmqr_options, 1, 0, 1 },
+        { "test_rmqr_input", test_rmqr_input, 1, 1, 1 },
+        { "test_rmqr_gs1", test_rmqr_gs1, 1, 1, 1 },
+        { "test_rmqr_optimize", test_rmqr_optimize, 1, 1, 1 },
+        { "test_rmqr_encode", test_rmqr_encode, 1, 1, 1 },
+    };
+
+    testRun(argc, argv, funcs, ARRAY_SIZE(funcs));
 
     testReport();
 
