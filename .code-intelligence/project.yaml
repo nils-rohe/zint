@@ -18,7 +18,7 @@ build_script: ".code-intelligence/build.sh"
 
 ## Paths to the fuzz tests to execute
 fuzz_tests:
-  - .code-intelligence/fuzz_targets/ean_fuzzer.cpp
+    - .code-intelligence/fuzz_targets/ean_fuzzer.cpp
 
 ## Paths to web app fuzz target configs
 web_app_target_configs:
@@ -26,14 +26,14 @@ web_app_target_configs:
 ## The sanitizers to use for the fuzz tests
 ## By default, only address sanitizer is used.
 sanitizers:
-  - address
+    - address
 
 ## The fuzzing engines to use for the fuzz tests
 ## By default, only libfuzzer is used. Note that because Java and Go
 ## are only supported by libfuzzer, libfuzzer will always be used for
 ## Java and Go fuzz tests, independent of this setting.
 engines:
-  - libfuzzer
+    - libfuzzer
 
 ## The run time after which the fuzz tests are cancelled and
 ## considered as having passed. Default value is 30 minutes.
@@ -41,6 +41,5 @@ runtime: "30m0s"
 
 ## The number of parallel executions per fuzz test
 parallel_executions: 1
-
 ## If true, do not initialize the seed corpus of the fuzz tests.
 # skip_initial_corpus: false

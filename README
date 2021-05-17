@@ -18,7 +18,7 @@ Composite Symbology, Data Matrix, QR Code, Maxicode, Aztec Code, EAN-13,
 Micro QR, Korea Post Barcode, HIBC Code 128, HIBC Code 39, HIBC Data Matrix,
 HIBC PDF417, HIBC MicroPDF417, HIBC QR Code, HIBC Aztec Code, Japanese Postal
 Code, Code 49, Channel Code, Code One, Grid Matrix, FIM and Flattermarken,
-Codablock-F, DotCode, Han Xin Code, rMQR.
+Codablock-F, DotCode, Han Xin Code, rMQR and Ultracode.
 
 Output can be saved as BMP, EPS, GIF, PCX, TIF, EMF, PNG or SVG. 
 
@@ -129,6 +129,150 @@ Bugs:
   encodings.
 - In 2.7.0 removed interface "ZBarcode_Render" still declared
 - vc6 make was missing (trivial) resource.h
+
+Version 2.8.0 2020-04-10:
+Changes:
+(New) Tests for auspost, codablock, composite, dotcode, general, telepen, upcean,
+  all output formats, 
+- QR, Han Xin, Grid Matrix: the multi byte compaction schemes (ex: Kanji)
+  are used by some decoders as codepage information (Ex: GB2312) and output
+  may be translated to UTF-8. This may destroy the data in a not controlable
+  manner.
+  In consequence, multibyte compaction schemes are disabled by default.
+  The new option --fullmultibyte (option_3 = ZINT_FULL_MULTIBYTE) enables this
+  optimisation.
+- Add new symbology "Ultra Code" with the ability to output colour codes.
+Bugs:
+- Ticket 181 penetration test found many bugs:
+  - Auspost: null bytes in content caused segfault
+  - Codablock: data 0x1a..0x1f caused segfault
+  - Dotcode: overrun in binary mode, overrun in codeword_array buffer
+      Correct encoding of HT/FS/GS/RS when shifting to code set B
+  - empty or unreadable input file
+  - telepen: buffer overflow
+  - EANUCC: buffer overflow on multiple + (multiple extension bars)
+  - Maxicode: index overrun on numeric compaction
+  - CodeOne: Simple i indexing not sp + i in C1_ASCII numeric latch loop.
+  - Aztec: free memory
+- Ticket 183: Databar stacked separator correction
+- Ticket 182: Output bitmap type was char, where some targets assigned 0
+  if pixel colour >127 (e.g. negative). API change to use unsigned char.
+- HanXin: wrong codepage, gb2312 instead gb18030.
+- PDF417: corrected alloced sizes to max characters
+- Ticket 189: FNC1 encodation fixed (FLG(0) missing after FLG(n))
+- PCX format: added missing bytes_per_line if bitmap width is odd.
+
+Version 2.9.0 2020-07-31:
+Changes:
+- Dotcode: adopt to AIM DOC Revision 4
+- New option "-separator=" for zint to specify the separator height of stacked
+  symbologies.
+- make internal routines invisible by a static function definition.
+- CODE11: make adding check digits an option, selectable to 2 (default as now),
+  1 or none
+- LOGMARS restrict max length to 30 per MIL-STD-1189 Rev. B; make check digit
+  optional
+- CODE39/EXCODE39: max length now 85
+- VIN code extended to international licence plates
+- CODABAR: 3 data characters minimum (plus start/stop), check digit option added
+- Channel Code: performance improvement
+- QT GUI: 
+  - GRIDMATRIX/HX/MQR/QRCODE/RMQR: allow separate selection of size/ECC
+  - add DAFT and VIN Symbolgies
+  - Separarator option for DATAMATRIX
+  - parse escape sequences
+  - gui element reassigments
+- UPC/EAN/ITF-14 Composite: Ticket 72: new option --addongap (default:9) to set
+  the gap between code and composite.
+- TCL Backend: The following symbology names were renamed:
+  - Matrix2of5 -> Standard2of5
+  - PDF417Trunc -> PDF417Compact
+  - RSS14Stacked -> GS1DataBarStacked
+  - RSS14Stacked -> GS1DataBarStacked
+  - RSS14StackedOmni -> GS1DataBarSstackedOmni
+  - RSS14ExpandedStacked -> GS1DataBarExpandedStacked
+  - OneCode -> USPSIntelligentMail
+  - EAN128-CC -> GS1-128-CC
+  - RSS14-CC -> GS1DataBarOmni-CC
+  - RSSLimited-CC -> GS1DataBarLimited-CC
+  - RSSExpandedStacked-CC -> GS1DataBarExpanded-CC
+  - RSSEXPanded-CC -> GS1DataBarExpanded-CC
+  - RSS14Stacked-CC -> GS1DataBarStacked-CC
+  - RSS14Omni-CC -> GS1DataBarStackedOmni-CC
+  - RSSExpandedStacked-CC -> GS1DataBarExpandedStacked-CC
+  *** Potential incompatibility ***
+- API Symbol names changed but old names preserved in zint.h
+  - BARCODE_C25MATRIX -> BARCODE_C25STANDARD
+  - BARCODE_EAB128_CC -> BARCODE_GS1_128
+  - BARCODE_RSS14 -> BARCODE_DBAR_OMN
+  - BARCODE_RSS_LTD -> BARCODE_DBAR_LTD
+  - BARCODE_RSS_EXP -> BARCODE_DBAR_EXP
+  - BARCODE_PDF417TRUNC -> BARCODE_PDF417COMP
+  - BARCODE_RSS14STACK -> BARCODE_DBAR_STK
+  - BARCODE_RSS14STACK_OMNI -> BARCODE_DBAR_OMNSTK
+  - BARCODE_RSS_EXPSTACK -> BARCODE_DBAR_EXPSTK
+  - BARCODE_ONECODE -> BARCODE_USPS_IMAIL
+  - BARCODE_EAN128_CC -> BARCODE_GS1_128_CC
+  - BARCODE_RSS14_CC -> BARCODE_DBAR_OMN_CC
+  - BARCODE_RSS_LTD_CC -> BARCODE_DBAR_LTD_CC
+  - BARCODE_RSS_EXP_CC -> BARCODE_DBAR_EXP_CC
+  - BARCODE_RSS14STACK_CC -> BARCODE_DBAR_STK_CC
+  - BARCODE_RSS_EXPSTACK_CC -> BARCODE_DBAR_EXPSTK_CC
+  
+Bugs:
+- Ticket 185 EMF export corrections
+  - fine scaling by the use of float arithmetic
+  - full header (extension1&2) with correct size field
+- Ticket 190: Aztec buffer overrun fixed
+- Ticket 191 suppress clang-tidy warnings: raster.c, composite.c, qr.c
+- Ultracode internal encoding bugs, ECI 899
+- GS1 data: exclude DEL character
+- Ticket 192: missing malloc.h include for Windows compilers.
+- Correct GS1 AI 253 & 255 length from 14 to 13
+- Codablock F changes:
+  - FNC4 may not be split over rows.
+  - Use Code128 routine for one line Codablock FIM
+  - Correct column range to 9 ... 62
+  - allow new options: row count and column count, border_width and HIBC mode
+  - pad correctly empty and last row
+  - separator length correction
+- Code128 changes:
+  - Correctly encode CodeA charset with control-character only data
+  - Improve coding of Extended ASCII (FNC4)
+  - Checksum calculation overflow protection
+  - EAN128 may reduce length
+- Check for incomplete escape sequences on data specification: "\" without
+  following character.
+- Code16K fixes: remove extended ASCII latch, pad character
+- Restructuring to have common code centralized:
+  - Code128 routines for Codablock&Code16K
+  - output.c has common routines from raster.c and symbologies.
+- HIBC_39: restrict max length to 68 otherwise to avoid overrun
+- Code One: protect agains overrun
+- Telepen: allow DEL
+- GS1 Databar/ GS1-128 Composite:
+  - Separator bar corrections
+  - Ticket 200: spurious additional row
+  - Correct names in GUI
+- Compact PDF417:
+  - Add missing stop pattern.
+  - Rename in GUI: "PDF417 Truncated" to "Compact PDF417".
+- PDF417: Optimize text compaction mode switch.
+- Human readable representation: Code128, Code39, Code93 special characters
+  are shown by a blank.
+- ITF14: Ticket 201: allow bind option
+
+Version 2.9.1 2020-08-04:
+Changes:
+- Implement transparency support
+  - -nobackground option added
+  - -fg and -bg may contain an alpha channel
+  - structure zint_symbol may now contain an alpha channel as output
+- Added DPD Symbology
+- Add support for Unicode escape characters
+Bugs:
+- EMF text colour does not change
+- Fix QPainterPath dependency for Visual Studio
 
 CONTACT US
 ----------

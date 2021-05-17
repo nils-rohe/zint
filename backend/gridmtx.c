@@ -1,7 +1,7 @@
 /*  gridmtx.c - Grid Matrix
 
     libzint - the open source barcode library
-    Copyright (C) 2009-2017 Robin Stuart <rstuart114@gmail.com>
+    Copyright (C) 2009-2020 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
     modification, are permitted provided that the following conditions
@@ -34,8 +34,6 @@
    AIM Global Document Number AIMD014 Rev. 1.63 Revised 9 Dec 2008 */
 
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #ifdef _MSC_VER
 #include <malloc.h>
 #endif
@@ -52,8 +50,8 @@
 static const char numeral_nondigits[] = " +-.,"; /* Non-digit numeral set, excluding EOL (carriage return/linefeed) */
 
 /* Whether in numeral or not. If in numeral, *p_numeral_end is set to position after numeral, and *p_numeral_cost is set to per-numeral cost */
-static int in_numeral(const unsigned int gbdata[], const size_t length, const int posn, unsigned int* p_numeral_end, unsigned int* p_numeral_cost) {
-    int i, digit_cnt, nondigit, nondigit_posn;
+static int in_numeral(const unsigned int gbdata[], const size_t length, const unsigned int posn, unsigned int* p_numeral_end, unsigned int* p_numeral_cost) {
+    unsigned int i, digit_cnt, nondigit, nondigit_posn;
 
     if (posn < *p_numeral_end) {
         return 1;
@@ -128,6 +126,7 @@ static unsigned int head_costs[GM_NUM_MODES] = {
 };
 
 static unsigned int* gm_head_costs(unsigned int state[]) {
+    (void)state; /* Unused */
     return head_costs;
 }
 
@@ -143,6 +142,7 @@ static unsigned int gm_switch_cost(unsigned int state[], const int k, const int 
         /*B*/ {  4 * GM_MULT,  (4 + 2) * GM_MULT,  4 * GM_MULT,  4 * GM_MULT,  4 * GM_MULT,                  0 },
     };
 
+    (void)state; /* Unused */
     return switch_costs[k][j];
 }
 
@@ -153,6 +153,7 @@ static unsigned int gm_eod_cost(unsigned int state[], const int k) {
         13 * GM_MULT, 10 * GM_MULT, 5 * GM_MULT, 5 * GM_MULT, 10 * GM_MULT, 4 * GM_MULT
     };
 
+    (void)state; /* Unused */
     return eod_costs[k];
 }
 
@@ -170,8 +171,8 @@ static void gm_cur_cost(unsigned int state[], const unsigned int gbdata[], const
     lower = gbdata[i] >= 'a' && gbdata[i] <= 'z';
     upper = gbdata[i] >= 'A' && gbdata[i] <= 'Z';
     control = !space && !numeric && !lower && !upper && gbdata[i] < 0x7F; /* Exclude DEL */
-    double_digit = i < length - 1 && numeric && gbdata[i + 1] >= '0' && gbdata[i + 1] <= '9';
-    eol = i < length - 1 && gbdata[i] == 13 && gbdata[i + 1] == 10;
+    double_digit = i < (int) length - 1 && numeric && gbdata[i + 1] >= '0' && gbdata[i + 1] <= '9';
+    eol = i < (int) length - 1 && gbdata[i] == 13 && gbdata[i + 1] == 10;
 
     /* Hanzi mode can encode anything */
     cur_costs[GM_H] = prev_costs[GM_H] + (double_digit || eol ? 39 : 78); /* (6.5 : 13) * GM_MULT */
@@ -228,6 +229,8 @@ static void define_mode(char* mode, const unsigned int gbdata[], const size_t le
 
 /* Add the length indicator for byte encoded blocks */
 static void add_byte_count(char binary[], const size_t byte_count_posn, const int byte_count) {
+    /* AIMD014 6.3.7: "Let L be the number of bytes of input data to be encoded in the 8-bit binary data set.
+     * First output (L-1) as a 9-bit binary prefix to record the number of bytes..." */
     bin_append_posn(byte_count - 1, 9, binary, byte_count_posn);
 }
 
@@ -254,7 +257,8 @@ static int gm_encode(unsigned int gbdata[], const size_t length, char binary[], 
     /* Create a binary stream representation of the input data.
        7 sets are defined - Chinese characters, Numerals, Lower case letters, Upper case letters,
        Mixed numerals and latters, Control characters and 8-bit binary data */
-    int sp, current_mode, last_mode;
+    unsigned int sp;
+    int current_mode, last_mode;
     unsigned int glyph = 0;
     int c1, c2, done;
     int p = 0, ppos;
@@ -272,7 +276,6 @@ static int gm_encode(unsigned int gbdata[], const size_t length, char binary[], 
 
     sp = 0;
     current_mode = 0;
-    last_mode = 0;
     number_pad_posn = 0;
 
     if (reader) {
@@ -730,7 +733,7 @@ static void gm_add_ecc(const char binary[], const size_t data_posn, const int la
     }
 
     /* Convert from binary stream to 7-bit codewords */
-    for (i = 0; i < data_posn; i++) {
+    for (i = 0; i < (int) data_posn; i++) {
         for (p = 0; p < 7; p++) {
             if (binary[i * 7 + p] == '1') {
                 data[i] += (0x40 >> p);
@@ -923,6 +926,7 @@ INTERNAL int grid_matrix(struct zint_symbol *symbol, const unsigned char source[
     int size, modules, error_number;
     int auto_layers, min_layers, layers, auto_ecc_level, min_ecc_level, ecc_level;
     int x, y, i;
+    int full_multibyte;
     char binary[9300];
     int data_cw, input_latch = 0;
     unsigned char word[1460];
@@ -939,13 +943,15 @@ INTERNAL int grid_matrix(struct zint_symbol *symbol, const unsigned char source[
         word[i] = 0;
     }
 
+    full_multibyte = symbol->option_3 == ZINT_FULL_MULTIBYTE; /* If set use Hanzi mode in DATA_MODE or for single-byte Latin */
+
     if ((symbol->input_mode & 0x07) == DATA_MODE) {
-        gb2312_cpy(source, &length, gbdata);
+        gb2312_cpy(source, &length, gbdata, full_multibyte);
     } else {
         int done = 0;
         if (symbol->eci != 29) { /* Unless ECI 29 (GB) */
             /* Try single byte (Latin) conversion first */
-            int error_number = gb2312_utf8tosb(symbol->eci && symbol->eci <= 899 ? symbol->eci : 3, source, &length, gbdata);
+            int error_number = gb2312_utf8tosb(symbol->eci && symbol->eci <= 899 ? symbol->eci : 3, source, &length, gbdata, full_multibyte);
             if (error_number == 0) {
                 done = 1;
             } else if (symbol->eci && symbol->eci <= 899) {
