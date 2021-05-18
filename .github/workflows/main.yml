@@ -9,10 +9,10 @@ on:
 env:
   FUZZING_SERVER_ADDRESS: demo.code-intelligence.com:6773
   WEB_APP_ADDRESS:  https://demo.code-intelligence.com
-  
+
 
 jobs:
-  fuzz_ean_fuzzer:
+  fuzz_tests:
     runs-on: ubuntu-latest
     steps:
       - id: start-fuzzing
@@ -20,9 +20,9 @@ jobs:
         uses: CodeIntelligenceTesting/github-actions/start-fuzzing@v3
         with:
           ci_fuzz_api_token: ${{ secrets.CI_FUZZ_API_TOKEN }}
-          test_collection: "projects/organizations_82cc3b42e291d178_zint-006bf471/campaigns/all_barcodes-e15b2480"
+          project: "projects/organizations_82cc3b42e291d178_zint-006bf471"
           git_reference: ${{ github.sha }}
-          fuzzing_server_address: ${{ env.FUZZING_SERVER_ADDRESS }}          
+          fuzzing_server_address: ${{ env.FUZZING_SERVER_ADDRESS }}
       - id: monitor-fuzzing
         name: Fuzzing
         uses: CodeIntelligenceTesting/github-actions/monitor-fuzzing@v3
