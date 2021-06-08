@@ -4,7 +4,7 @@ on:
   push:
     branches: [ master ]
   pull_request:
-    branches: [ master ]
+    branches: [ vulnerable-version-2.7.1 ]
 
 env:
   FUZZING_SERVER_ADDRESS: nightly.code-intelligence.com:6773
