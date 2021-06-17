@@ -2,7 +2,7 @@ name: Code Intelligence Fuzzing
 
 on:
   push:
-    branches: [ master ]
+    branches: [ vulnerable-version-2.7.1 ]
   pull_request:
     branches: [ vulnerable-version-2.7.1 ]
 
