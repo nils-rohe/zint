@@ -44,7 +44,6 @@ pipeline {
         stage ('Build fuzz test') {
           steps {
             sh '''
-              echo "build tag: ${BUILD_TAG}"
               set -eu
 
               # Switch to build directory
