@@ -124,7 +124,7 @@ pipeline {
 
         JQ="${WORKSPACE}/jq"
         JQ_URL=https://github.com/stedolan/jq/releases/download/jq-1.6/jq-linux64
-        JQ_CHECKSUM=af986793a515d500ab2d35f8d2aecd656e764504b789b66d7e1a0b727a124c44
+        JQ_CHECKSUM=d99edc0e3d6165f84a8ca4efb81fc67ff8760990f90974d8ae49686e59258e28
 
         # Download jq if it doesn't exist
         if [ ! -f "${JQ}" ]; then
