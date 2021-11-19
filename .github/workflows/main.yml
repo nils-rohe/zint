@@ -1,7 +1,6 @@
-name: Code Intelligence Fuzzing
+name: CI Fuzz
 
 on:
-  workflow_dispatch:
   push:
     branches: [ cicd_test ]
   pull_request:
@@ -30,24 +29,23 @@ jobs:
         with:
           ci_fuzz_api_token: ${{ secrets.CI_FUZZ_CICD_TEST_API_TOKEN }}
           test_collection_run: ${{ steps.start-fuzzing.outputs.test_collection_run }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          pull_request_number: ${{ github.event.pull_request.number }}
-          owner: ${{ github.event.repository.owner.login }}
-          repository: ${{ github.event.repository.name }}
           fuzzing_server_address: ${{ env.FUZZING_SERVER_ADDRESS }}
           dashboard_address: ${{ env.WEB_APP_ADDRESS }}
-      - id: report-coverage
-        name: Report Coverage
-        uses: CodeIntelligenceTesting/github-actions/report-coverage@v3
-        if: ${{ github.event_name == 'pull_request' && (success() || failure()) }}
+      - id: save-results
+        name: Save Fuzz Test Results
+        uses: CodeIntelligenceTesting/github-actions/save-results@v3
+        if: ${{ success() || failure() }}
         with:
           ci_fuzz_api_token: ${{ secrets.CI_FUZZ_CICD_TEST_API_TOKEN }}
           test_collection_run: ${{ steps.start-fuzzing.outputs.test_collection_run }}
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          pull_request_number: ${{ github.event.pull_request.number }}
-          owner: ${{ github.event.repository.owner.login }}
-          repository: ${{ github.event.repository.name }}
-          git_reference: ${{ github.sha }}
           fuzzing_server_address: ${{ env.FUZZING_SERVER_ADDRESS }}
           dashboard_address: ${{ env.WEB_APP_ADDRESS }}
-          
+      - id: upload-artifact
+        uses: actions/upload-artifact@v2
+        if: ${{ (success() || failure()) }}
+        with:
+          name: ci_fuzz_results
+          path: | 
+            findings.json
+            coverage.json
+            web_app_address.txt
