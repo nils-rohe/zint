@@ -1,6 +1,7 @@
 name: CI Fuzz
 
 on:
+  workflow_dispatch:
   push:
     branches: [ cicd_test ]
   pull_request:
