@@ -18,6 +18,8 @@ pipeline {
         FINDINGS_TYPE = 'CRASH';
         TIMEOUT = '900'
   
+        # Email that will receive reports if any finding is encountered.
+        REPORT_EMAIL: dev@code-intelligence.com
       }
 
       stages {
