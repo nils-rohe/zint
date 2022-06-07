@@ -9,7 +9,7 @@ on:
 env:
   FUZZING_SERVER_ADDRESS: nightly.code-intelligence.com:6773
   WEB_APP_ADDRESS:  https://nightly.code-intelligence.com
-
+  REPORT_EMAIL: dev@code-intelligence.com
 
 jobs:
   fuzz_tests:
@@ -22,6 +22,7 @@ jobs:
           ci_fuzz_api_token: ${{ secrets.CI_FUZZ_CICD_TEST_API_TOKEN }}
           git_reference: ${{ github.sha }}
           fuzzing_server_address: ${{ env.FUZZING_SERVER_ADDRESS }}
+          report_email: ${{ env.REPORT_EMAIL }}
       - id: monitor-fuzzing
         name: Fuzzing
         uses: CodeIntelligenceTesting/github-actions/monitor-fuzzing@dev
