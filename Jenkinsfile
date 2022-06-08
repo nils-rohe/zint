@@ -19,7 +19,7 @@ pipeline {
         TIMEOUT = '900'
   
         // Email that will receive reports if any finding is encountered.
-        REPORT_EMAIL: dev@code-intelligence.com
+        REPORT_EMAIL = 'dev@code-intelligence.com'
       }
 
       stages {
