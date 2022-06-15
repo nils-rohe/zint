@@ -1,125 +1,91 @@
 pipeline {
   agent any
-  stages {
-    stage ('Prepare fuzz test') {
-      environment {
-        // Name of the project to fuzz
-        PROJECT_NAME = 'projects/organizations_98ca903996ebf78e_zint-6fcab85e'
-        // Address of the fuzzing service
-        FUZZING_SERVER_URL = 'nightly.code-intelligence.com:6773'
-        // Address of the fuzzing web interface
-        WEB_APP_ADDRESS =  'https://nightly.code-intelligence.com'
 
-        // Credentials for accessing the fuzzing service
-        CI_FUZZ_API_TOKEN = credentials('CI_FUZZ_API_TOKEN_NIGHTLY')
-    CICTL = "${WORKSPACE}/cictl-3.2.2-linux";
-        CICTL_VERSION = '3.2.2';
-        CICTL_SHA256SUM = '1638c7426af10dccc60da00fa70c6c42fb7b8cea59ee926a64568784b61926d3';
-        CICTL_URL = 'https://s3.eu-central-1.amazonaws.com/public.code-intelligence.com/cictl/cictl-3.2.2-linux';
-        FINDINGS_TYPE = 'CRASH';
-        TIMEOUT = '900'
-  
-      }
-
-      stages {
-        stage ('Download cictl') {
-          steps {
-            sh '''
-              set -eu
-
-              # Download cictl if it doesn't exist already
-              if [ ! -f "${CICTL}" ]; then
-                curl "${CICTL_URL}" -o "${CICTL}"
-              fi
-
-              # Verify the checksum
-              echo "${CICTL_SHA256SUM} "${CICTL}"" | sha256sum --check
-
-              # Make it executable
-              chmod +x "${CICTL}"
-            '''
-          }
-        }
-
-        stage ('Build fuzz test') {
-          steps {
-            sh '''
-              set -eu
-
-              # Switch to build directory
-              mkdir -p "${BUILD_TAG}"
-              cd "${BUILD_TAG}"
-
-              # Log in
-              echo "${CI_FUZZ_API_TOKEN}" | $CICTL --server="${FUZZING_SERVER_URL}" login --quiet
-
-              # $CI_COMMIT_SHA may be specified in the Jenkins pipeline,
-              # or, if using the Git plugin, $GIT_COMMIT could be used.
-              if [ -z "${CI_COMMIT_SHA:-}" ]; then
-                CI_COMMIT_SHA=${GIT_COMMIT:-}
-              fi
-              
-              # In a Jenkins multibranch pipeline run for a pull request,
-              # $CHANGE_BRANCH contains the actual branch name. If not set,
-              # we fall back to $GIT_BRANCH, which is set by the Git plugin.
-              CI_GIT_BRANCH=${CHANGE_BRANCH:-${GIT_BRANCH:-}}
-
-              # Start fuzzing.
-              CAMPAIGN_RUN=$(${CICTL} start \\
-                --server="${FUZZING_SERVER_URL}" \\
-                --report-email="${REPORT_EMAIL:-}" \\
-                --git-branch="${CI_GIT_BRANCH:-}" \\
-                --commit-sha="${CI_COMMIT_SHA:-}" \\
-                "${PROJECT_NAME}")
-
-              # Store the campaign run name for the next stage
-              OUTFILE="campaign-run"
-              echo "${CAMPAIGN_RUN}" > "${OUTFILE}"
-            '''
-          }
-        }
-
-        stage ('Start fuzz test') {
-          steps {
-            sh '''
-              set -eu
-
-              # Switch to build directory
-              cd "${BUILD_TAG}"
-
-              # Get the name of the started campaign run
-              INFILE="campaign-run"
-              CAMPAIGN_RUN=$(cat ${INFILE})
-
-              # Log in
-              echo "${CI_FUZZ_API_TOKEN}" | ${CICTL} --server="${FUZZING_SERVER_URL}" login --quiet
-
-              # Monitor Fuzzing
-              ${CICTL} monitor_campaign_run \\
-                --server="${FUZZING_SERVER_URL}" \\
-                --dashboard_address="${WEB_APP_ADDRESS}" \\
-                --duration="${TIMEOUT}" \\
-                --findings_type="${FINDINGS_TYPE}" \\
-                "${CAMPAIGN_RUN}"
-            '''
-          }
-        }
-      }
-    }
+  parameters {
+    string(name: 'CI_BUILD_TOOLS_VERSION_OVERRIDE', defaultValue: '', description: 'Override CI Build installer version')
+    string(name: 'PROJECT' , defaultValue: 'projects/zint-2dd7cf83', description: 'Name of Project to fuzz')
+    string(name: 'TIMEOUT', defaultValue: '300', description: 'Seconds to wait for a finding. If nothing is found within this time span,'+
+    'the pipeline run will be considered a success.')
+    string(name: 'FINDINGS_TYPE', defaultValue: 'CRASH', description: 'Type of finding to wait for. If found, the pipeline will be marked as failure.')
+    string(name: 'FUZZING_SERVER', defaultValue: 'nightly.code-intelligence.com:443', description: 'URL of the CI Fuzz gRPC API.')
+    string(name: 'WEB_APP_ADDRESS', defaultValue: 'https://nightly.code-intelligence.com', description: 'URL of the CI Fuzz Web UI.')
+    credentials(
+      name: 'CI_FUZZ_API_TOKEN',
+      credentialType: 'org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl',
+      defaultValue: 'CI_FUZZ_API_TOKEN',
+      description: 'Access Token for CI Fuzz API.')
   }
 
+  stages {
+    stage ('CI Fuzz') {
+      steps {
+        withCredentials([string(credentialsId: "${CI_FUZZ_API_TOKEN}", variable: 'CI_FUZZ_API_TOKEN')]) {
+          sh '''
+            CIFUZZ_INSTALL_DIR="$HOME/cifuzz"
+            CI_BUILD=${CIFUZZ_INSTALL_DIR}/bin/ci-build
+            CICTL=${CIFUZZ_INSTALL_DIR}/bin/cictl
+            ### Download CI Fuzz Build Tools
+            CIBUILD_VERSION=$(${CI_BUILD} --version | grep -o -P '\\d+\\.\\d+\\.\\d+') || true
+            if [ -n "${CI_BUILD_TOOLS_VERSION_OVERRIDE}" ]; then
+              CIFUZZ_SERVER_VERSION="${CI_BUILD_TOOLS_VERSION_OVERRIDE}"
+            else
+              CIFUZZ_SERVER_VERSION= $(curl "$WEB_APP_ADDRESS/v1/version" | grep -o -P '\\d+\\.\\d+\\.\\d+') \
+                || ( echo "Problem getting CI Fuzz server version, cannot download/update CI Fuzz build tools!" ; false )
+            fi
+
+            if [ "$CIBUILD_VERSION" != "$CIFUZZ_SERVER_VERSION" ]; then
+                INSTALLER=ci-fuzz-build-tools-installer-$CIFUZZ_SERVER_VERSION-linux
+                curl "https://s3.eu-central-1.amazonaws.com/public.code-intelligence.com/releases/$INSTALLER" -s -o $INSTALLER
+                chmod +x $INSTALLER
+                rm -rf $CIFUZZ_INSTALL_DIR
+                ./$INSTALLER --non-interactive --extract-only --install-dir $CIFUZZ_INSTALL_DIR
+            fi
+
+            ### Log in to CI Fuzz
+            CICTL_CMD="${CICTL} --server ${FUZZING_SERVER}"
+            echo "${CI_FUZZ_API_TOKEN}" | $CICTL_CMD login --quiet
+
+            ### Build Artifact
+            ARTIFACT_LOCATION=$HOME/zint-fuzzers.tar.gz
+            ${CI_BUILD} fuzzers -o ${ARTIFACT_LOCATION}
+
+            ### Import Artifact
+            ARTIFACT_NAME=$(${CICTL_CMD} import artifact ${ARTIFACT_LOCATION} --project-name "${PROJECT}")
+
+            ### Start Campaign Run
+            CAMPAIGN_RUN_NAME=$(${CICTL_CMD} start "${ARTIFACT_NAME}")
+
+            ### Observe Campaign Run with timeout, watching for findings
+            mkdir -p "${BUILD_TAG}"
+            cd "${BUILD_TAG}"
+
+            ${CICTL_CMD} monitor_campaign_run \
+              --dashboard_address="${WEB_APP_ADDRESS}" \
+              --duration="${TIMEOUT}" \
+              --findings_type="${FINDINGS_TYPE}" \
+              ${CAMPAIGN_RUN_NAME}
+          '''
+          }
+        }
+    }
+  }
   post {
     always {
-        sh '''
+      sh '''
         set -eu
 
-        # Switch to build directory
-        cd "${BUILD_TAG}"
+        pwd
+        if [ -d "${BUILD_TAG}" ]; then
+            cd "${BUILD_TAG}"
+        else
+            # There isn't a work dir, most likely the fuzzing step failed before creating it
+            exit 0
+        fi
 
         # Check if there are any findings
         if ! stat -t finding-*.json > /dev/null 2>&1; then
           # There are no findings, so there's nothing to do
-          exit
+         exit 0
         fi
 
         JQ="${WORKSPACE}/jq"
@@ -135,7 +101,7 @@ pipeline {
             curl -L "${JQ_URL}" -o "${JQ}"
           fi
         else
-        # The file doesn't exist yet, download it
+          # The file doesn't exist yet, download it
           curl -L "${JQ_URL}" -o "${JQ}"
         fi
 
@@ -150,6 +116,6 @@ pipeline {
         '''
 
         archiveArtifacts artifacts: "${BUILD_TAG}/cifuzz_findings.json", fingerprint: true
+      }
     }
-  }
 }
