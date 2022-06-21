@@ -1,5 +1,5 @@
 ## The name of the container image used for building the fuzz tests
-build_container: "cifuzz/builders:zint"
+build_container: "cifuzz/builder-zint"
 
 ## The name of the container image used for running the fuzz tests. If
 ## unspecified, the image of the build container is used.
