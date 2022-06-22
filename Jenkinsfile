@@ -1,14 +1,24 @@
 pipeline {
+
   agent any
 
+  // Place your API token in a secret text credential called CI_FUZZ_API_TOKEN.
+  // Note you can also start the pipeline with custom parameters.
+
   parameters {
-    string(name: 'CI_BUILD_TOOLS_VERSION_OVERRIDE', defaultValue: '', description: 'Override CI Build installer version')
-    string(name: 'PROJECT' , defaultValue: 'projects/zint-2dd7cf83', description: 'Name of Project to fuzz')
-    string(name: 'TIMEOUT', defaultValue: '300', description: 'Seconds to wait for a finding. If nothing is found within this time span,'+
-    'the pipeline run will be considered a success.')
-    string(name: 'FINDINGS_TYPE', defaultValue: 'CRASH', description: 'Type of finding to wait for. If found, the pipeline will be marked as failure.')
-    string(name: 'FUZZING_SERVER', defaultValue: 'nightly.code-intelligence.com:443', description: 'URL of the CI Fuzz gRPC API.')
-    string(name: 'WEB_APP_ADDRESS', defaultValue: 'https://nightly.code-intelligence.com', description: 'URL of the CI Fuzz Web UI.')
+    string(name: 'CI_BUILD_TOOLS_VERSION_OVERRIDE', defaultValue: '',
+           description: 'Override CI Build installer version')
+    string(name: 'PROJECT' , defaultValue: 'projects/zint-2dd7cf83',
+           description: 'Name of Project to fuzz')
+    string(name: 'TIMEOUT', defaultValue: '300', description:
+           'Seconds to wait for a finding. If nothing is found within this time span,'+
+           'the pipeline run will be considered a success.')
+    string(name: 'FINDINGS_TYPE', defaultValue: 'CRASH',
+           description: 'Type of finding to wait for. If found, the pipeline will be marked as failure.')
+    string(name: 'FUZZING_SERVER', defaultValue: 'nightly.code-intelligence.com:443',
+           description: 'URL of the CI Fuzz gRPC API.')
+    string(name: 'WEB_APP_ADDRESS', defaultValue: 'https://nightly.code-intelligence.com',
+           description: 'URL of the CI Fuzz Web UI.')
     credentials(
       name: 'CI_FUZZ_API_TOKEN',
       credentialType: 'org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl',
@@ -21,32 +31,33 @@ pipeline {
       steps {
         withCredentials([string(credentialsId: "${CI_FUZZ_API_TOKEN}", variable: 'CI_FUZZ_API_TOKEN')]) {
           sh '''
-            CIFUZZ_INSTALL_DIR="$HOME/cifuzz"
-            CI_BUILD=${CIFUZZ_INSTALL_DIR}/bin/ci-build
-            CICTL=${CIFUZZ_INSTALL_DIR}/bin/cictl
+            CI_FUZZ_INSTALL_DIR="$HOME/cifuzz"
+            CI_BUILD=${CI_FUZZ_INSTALL_DIR}/bin/ci-build
+            CICTL=${CI_FUZZ_INSTALL_DIR}/bin/cictl
+
             ### Download CI Fuzz Build Tools
             CIBUILD_VERSION=$(${CI_BUILD} --version | grep -o -P '\\d+\\.\\d+\\.\\d+') || true
             if [ -n "${CI_BUILD_TOOLS_VERSION_OVERRIDE}" ]; then
-              CIFUZZ_SERVER_VERSION="${CI_BUILD_TOOLS_VERSION_OVERRIDE}"
+              CI_FUZZ_SERVER_VERSION="${CI_BUILD_TOOLS_VERSION_OVERRIDE}"
             else
-              CIFUZZ_SERVER_VERSION= $(curl "$WEB_APP_ADDRESS/v1/version" | grep -o -P '\\d+\\.\\d+\\.\\d+') \
+              CI_FUZZ_SERVER_VERSION=$(curl "${WEB_APP_ADDRESS}/v1/version" | grep -o -P '\\d+\\.\\d+\\.\\d+') \
                 || ( echo "Problem getting CI Fuzz server version, cannot download/update CI Fuzz build tools!" ; false )
             fi
 
-            if [ "$CIBUILD_VERSION" != "$CIFUZZ_SERVER_VERSION" ]; then
-                INSTALLER=ci-fuzz-build-tools-installer-$CIFUZZ_SERVER_VERSION-linux
-                curl "https://s3.eu-central-1.amazonaws.com/public.code-intelligence.com/releases/$INSTALLER" -s -o $INSTALLER
-                chmod +x $INSTALLER
-                rm -rf $CIFUZZ_INSTALL_DIR
-                ./$INSTALLER --non-interactive --extract-only --install-dir $CIFUZZ_INSTALL_DIR
+            if [ "${CIBUILD_VERSION}" != "${CI_FUZZ_SERVER_VERSION}" ]; then
+              INSTALLER=ci-fuzz-build-tools-installer-${CI_FUZZ_SERVER_VERSION}-linux
+              curl "https://s3.eu-central-1.amazonaws.com/public.code-intelligence.com/releases/${INSTALLER}" -s -o ${INSTALLER}
+              chmod +x ${INSTALLER}
+              rm -rf ${CI_FUZZ_INSTALL_DIR}
+              ./${INSTALLER} --non-interactive --extract-only --install-dir ${CI_FUZZ_INSTALL_DIR}
             fi
 
             ### Log in to CI Fuzz
             CICTL_CMD="${CICTL} --server ${FUZZING_SERVER}"
-            echo "${CI_FUZZ_API_TOKEN}" | $CICTL_CMD login --quiet
+            echo "${CI_FUZZ_API_TOKEN}" | ${CICTL_CMD} login --quiet
 
             ### Build Artifact
-            ARTIFACT_LOCATION=$HOME/zint-fuzzers.tar.gz
+            ARTIFACT_LOCATION=${HOME}/zint-fuzzers.tar.gz
             ${CI_BUILD} fuzzers -o ${ARTIFACT_LOCATION}
 
             ### Import Artifact
@@ -65,21 +76,22 @@ pipeline {
               --findings_type="${FINDINGS_TYPE}" \
               ${CAMPAIGN_RUN_NAME}
           '''
-          }
         }
+      }
     }
   }
+
   post {
     always {
       sh '''
         set -eu
 
-        pwd
+        # Switch to build directory
         if [ -d "${BUILD_TAG}" ]; then
-            cd "${BUILD_TAG}"
+          cd "${BUILD_TAG}"
         else
-            # There isn't a work dir, most likely the fuzzing step failed before creating it
-            exit 0
+          # There isn't a work dir, most likely the fuzzing step failed before creating it
+          exit 0
         fi
 
         # Check if there are any findings
@@ -113,9 +125,9 @@ pipeline {
 
         # Merge findings into one file
         "${JQ}" --slurp '.' finding-*.json > cifuzz_findings.json
-        '''
+      '''
 
-        archiveArtifacts artifacts: "${BUILD_TAG}/cifuzz_findings.json", fingerprint: true
-      }
+      archiveArtifacts artifacts: "${BUILD_TAG}/cifuzz_findings.json", fingerprint: true
     }
+  }
 }
