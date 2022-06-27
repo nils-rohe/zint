@@ -8,16 +8,16 @@ pipeline {
   parameters {
     string(name: 'CI_BUILD_TOOLS_VERSION_OVERRIDE', defaultValue: '',
            description: 'Override CI Build installer version')
-    string(name: 'PROJECT' , defaultValue: 'projects/zint-2dd7cf83',
+    string(name: 'PROJECT' , defaultValue: 'projects/zint-nightly-023df15c',
            description: 'Name of Project to fuzz')
     string(name: 'TIMEOUT', defaultValue: '300', description:
            'Seconds to wait for a finding. If nothing is found within this time span,'+
            'the pipeline run will be considered a success.')
     string(name: 'FINDINGS_TYPE', defaultValue: 'CRASH',
            description: 'Type of finding to wait for. If found, the pipeline will be marked as failure.')
-    string(name: 'FUZZING_SERVER', defaultValue: 'nightly.code-intelligence.com:443',
+    string(name: 'FUZZING_SERVER', defaultValue: 'grpc.dev.code-intelligence.com:443',
            description: 'URL of the CI Fuzz gRPC API.')
-    string(name: 'WEB_APP_ADDRESS', defaultValue: 'https://nightly.code-intelligence.com',
+    string(name: 'WEB_APP_ADDRESS', defaultValue: 'https://app.dev.code-intelligence.com',
            description: 'URL of the CI Fuzz Web UI.')
     credentials(
       name: 'CI_FUZZ_API_TOKEN',
