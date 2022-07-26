@@ -15,9 +15,9 @@ pipeline {
            'the pipeline run will be considered a success.')
     string(name: 'FINDINGS_TYPE', defaultValue: 'CRASH',
            description: 'Type of finding to wait for. If found, the pipeline will be marked as failure.')
-    string(name: 'FUZZING_SERVER', defaultValue: 'grpc.dev.code-intelligence.com:443',
+    string(name: 'FUZZING_SERVER', defaultValue: 'grpc.staging.code-intelligence.com:443',
            description: 'URL of the CI Fuzz gRPC API.')
-    string(name: 'WEB_APP_ADDRESS', defaultValue: 'https://app.dev.code-intelligence.com',
+    string(name: 'WEB_APP_ADDRESS', defaultValue: 'https://app.staging.code-intelligence.com',
            description: 'URL of the CI Fuzz Web UI.')
     credentials(
       name: 'CI_FUZZ_API_TOKEN',
